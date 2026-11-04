@@ -1,0 +1,43 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793386443845,
+      "tag": "0000_black_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793388748337,
+      "tag": "0001_small_tag",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793388944839,
+      "tag": "0002_omniscient_moon_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793390211343,
+      "tag": "0003_colorful_blur",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793438697690,
+      "tag": "0004_lobby-removal",
+      "breakpoints": true
+    },
+    { "idx": 5, "version": "7", "when": 1793797000000, "tag": "0005_interactive-host", "breakpoints": true },
+    { "idx": 6, "version": "7", "when": 1793800000000, "tag": "0006_guided-game", "breakpoints": true }
+  ]
+}

@@ -1,0 +1,43 @@
+.hostConversation {
+  padding: 12px;
+  margin-block-end: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.hostConversation > p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.hostConversation audio {
+  max-width: 100%;
+}
+.form,
+.field {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.field {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 96px;
+  resize: vertical;
+  font: 400 1rem/1.5 var(--font-body);
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.hint {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}

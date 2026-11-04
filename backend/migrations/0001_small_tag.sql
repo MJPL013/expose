@@ -1,0 +1,1 @@
+ALTER TABLE "provider_attempts" ADD COLUMN "effective_model" text;
