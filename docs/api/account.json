@@ -1,0 +1,255 @@
+{
+  "protocol": 1,
+  "cookie": "expose_account",
+  "guestCookie": "expose_guest",
+  "googleSubjectIdentity": true,
+  "localBypass": false,
+  "routes": {
+    "GET /api/account/v1/auth/google": "Google sign-in with whitelisted returnTo",
+    "GET /api/account/v1/auth/google/callback": "Verified code exchange with state/nonce/PKCE",
+    "POST /api/account/v1/auth/logout": "Revoke session and close owned sockets",
+    "GET /api/account/v1/me": "Account, configuration, preferences and guest-link state",
+    "PUT /api/account/v1/preferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "accountId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "profile": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                "bio": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "avatar": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 560003
+                },
+                "color": {
+                  "type": "string",
+                  "enum": [
+                    "#ffb020",
+                    "#b5b2d8",
+                    "#dca58d",
+                    "#a8baa0",
+                    "#93bed2"
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "bio",
+                "avatar",
+                "color"
+              ],
+              "additionalProperties": false
+            },
+            "speechLanguage": {
+              "type": "string",
+              "enum": [
+                "en-IN",
+                "hi-IN",
+                "te-IN"
+              ]
+            },
+            "hostVoice": {
+              "type": "boolean"
+            },
+            "voiceMode": {
+              "type": "string",
+              "enum": [
+                "handsfree",
+                "hold",
+                "type"
+              ]
+            },
+            "layout": {
+              "type": "string",
+              "enum": [
+                "adaptive",
+                "compact"
+              ]
+            },
+            "theme": {
+              "type": "string",
+              "enum": [
+                "dark",
+                "light"
+              ]
+            },
+            "sound": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "volume": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "timer": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "enabled",
+                "volume",
+                "timer"
+              ],
+              "additionalProperties": false
+            },
+            "feedback": {
+              "type": "object",
+              "properties": {
+                "vibration": {
+                  "type": "boolean"
+                },
+                "timerVibration": {
+                  "type": "boolean"
+                },
+                "reduceMotion": {
+                  "type": "boolean"
+                },
+                "keepAwake": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "vibration",
+                "timerVibration",
+                "reduceMotion",
+                "keepAwake"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "profile",
+            "speechLanguage",
+            "hostVoice",
+            "voiceMode",
+            "layout",
+            "theme",
+            "sound",
+            "feedback"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "accountId",
+        "preferences"
+      ],
+      "additionalProperties": false
+    },
+    "POST /api/account/v1/onboarding": "Explicit versioned retention acknowledgement",
+    "POST /api/account/v1/link-guest": "Claim current authenticated guest without conflicting ownership/seats",
+    "GET /api/account/v1/rooms": "Eligible linked-player room recovery",
+    "POST /api/account/v1/player": "Select an owned linked player for recovery",
+    "GET /api/account/v1/matches": "Server-generated result summaries",
+    "GET /api/account/v1/cards": "Account saved cards with verified-match/local-import provenance",
+    "POST /api/account/v1/cards/import": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "approved": {
+          "type": "boolean",
+          "const": true
+        },
+        "cards": {
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "subjectId": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 24
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 150
+              },
+              "quote": {
+                "type": "string",
+                "maxLength": 240
+              },
+              "traits": {
+                "minItems": 3,
+                "maxItems": 3,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "maxLength": 100
+                    },
+                    "value": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "caseId": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "avatar": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 560003
+              },
+              "color": {
+                "type": "string",
+                "maxLength": 30
+              }
+            },
+            "required": [
+              "subjectId",
+              "name",
+              "title",
+              "quote",
+              "traits",
+              "caseId",
+              "avatar",
+              "color"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "approved",
+        "cards"
+      ],
+      "additionalProperties": false
+    },
+    "DELETE /api/account/v1/cards/:id": "Owner-only card removal"
+  }
+}

@@ -1,0 +1,3084 @@
+{
+  "protocol_version": 6,
+  "realtime": {
+    "path": "/api/v1/realtime",
+    "client": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "protocol_version": {
+              "type": "number",
+              "const": 6
+            },
+            "type": {
+              "type": "string",
+              "const": "connect"
+            },
+            "roomId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "lastRevision": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "takeover": {
+              "default": false,
+              "type": "boolean"
+            },
+            "capabilities": {
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "media-events-v1"
+                ]
+              }
+            }
+          },
+          "required": [
+            "protocol_version",
+            "type",
+            "roomId",
+            "lastRevision",
+            "takeover"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "voice.playback"
+            },
+            "mediaId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "playing": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "mediaId",
+            "playing"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "protocol_version": {
+              "type": "number",
+              "const": 6
+            },
+            "type": {
+              "type": "string",
+              "const": "intent"
+            },
+            "runId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "intent": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "adult.confirm"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "appearance.update"
+                    },
+                    "avatar": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 560003
+                    },
+                    "color": {
+                      "type": "string",
+                      "enum": [
+                        "#ffb020",
+                        "#b5b2d8",
+                        "#dca58d",
+                        "#a8baa0",
+                        "#93bed2"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "avatar",
+                    "color"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "settings.update"
+                    },
+                    "pace": {
+                      "type": "string",
+                      "enum": [
+                        "quick",
+                        "normal",
+                        "relaxed"
+                      ]
+                    },
+                    "hostLanguage": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "hi",
+                        "hinglish"
+                      ]
+                    },
+                    "spice": {
+                      "type": "string",
+                      "enum": [
+                        "mild",
+                        "medium",
+                        "spicy"
+                      ]
+                    },
+                    "adult": {
+                      "type": "boolean"
+                    },
+                    "guidedVoice": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "pace",
+                    "hostLanguage",
+                    "spice",
+                    "adult",
+                    "guidedVoice"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "chat"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "start"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "kick"
+                    },
+                    "playerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "playerId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "ready"
+                    },
+                    "ready": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "ready"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "next"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "skip"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "veto"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "restart"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "traits"
+                    },
+                    "self": {
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 10
+                      }
+                    },
+                    "friend": {
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 10
+                      }
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "self",
+                    "friend"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "nominate"
+                    },
+                    "playerId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "playerId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "submit"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "original": {
+                      "type": "string",
+                      "maxLength": 240
+                    },
+                    "language": {
+                      "type": "string",
+                      "enum": [
+                        "en-IN",
+                        "hi-IN",
+                        "te-IN"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "vote"
+                    },
+                    "optionId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "optionId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "predict"
+                    },
+                    "playerId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type",
+                    "playerId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "approve"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "phaseEpoch": {
+                      "allOf": [
+                        {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      ]
+                    },
+                    "cid": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stepId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "reject"
+                    }
+                  },
+                  "required": [
+                    "phaseEpoch",
+                    "cid",
+                    "stepId",
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "protocol_version",
+            "type",
+            "runId",
+            "intent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "host.ask"
+            },
+            "cid": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "captureId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "cid",
+            "text"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "host.reply"
+            },
+            "cid": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "beatId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "turn": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 240
+            },
+            "original": {
+              "type": "string",
+              "maxLength": 240
+            },
+            "language": {
+              "type": "string",
+              "enum": [
+                "en-IN",
+                "hi-IN",
+                "te-IN"
+              ]
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "answer",
+                "pass",
+                "stt-failed"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "cid",
+            "beatId",
+            "turn",
+            "text",
+            "outcome"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "host.begin"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "host.cancel"
+            },
+            "conversationId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "conversationId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ping"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "server": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "media.changed"
+            },
+            "runId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "runId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ownership"
+            },
+            "connectionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "connectionId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "state"
+            },
+            "snapshot": {
+              "type": "object",
+              "properties": {
+                "lobbyChat": {
+                  "maxItems": 50,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "seatId": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string",
+                        "maxLength": 240
+                      },
+                      "sentAt": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "seatId",
+                      "name",
+                      "text",
+                      "sentAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "protocol_version": {
+                  "type": "number",
+                  "const": 6
+                },
+                "online": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "narration": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "epoch": {
+                      "type": "number"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "pending",
+                        "generating",
+                        "presenting",
+                        "done"
+                      ]
+                    },
+                    "generationDeadline": {
+                      "type": "number"
+                    },
+                    "opensAt": {
+                      "type": "number"
+                    },
+                    "audioUrl": {
+                      "type": "string"
+                    },
+                    "playbackSeat": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "epoch",
+                    "text",
+                    "status",
+                    "generationDeadline",
+                    "opensAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "inviteUrl": {
+                  "type": "string"
+                },
+                "liveVoice": {
+                  "type": "boolean"
+                },
+                "hostFlowVersion": {
+                  "type": "number"
+                },
+                "hostBeat": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "string",
+                      "enum": [
+                        "act1",
+                        "midgame",
+                        "reply",
+                        "closing"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "generating",
+                        "speaking",
+                        "reply",
+                        "done"
+                      ]
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "audioUrl": {
+                      "type": "string"
+                    },
+                    "playbackSeat": {
+                      "type": "string"
+                    },
+                    "invitedSeat": {
+                      "type": "string"
+                    },
+                    "deadline": {
+                      "type": "number"
+                    },
+                    "replyDeadline": {
+                      "type": "number"
+                    },
+                    "turn": {
+                      "type": "number"
+                    },
+                    "remainingRecordings": {
+                      "type": "number"
+                    },
+                    "replies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "seatId": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "original": {
+                            "type": "string"
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "outcome": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "seatId",
+                          "text",
+                          "outcome"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "stage",
+                    "status",
+                    "text",
+                    "deadline",
+                    "turn"
+                  ],
+                  "additionalProperties": false
+                },
+                "remainingRecordings": {
+                  "type": "number"
+                },
+                "voiceInputVersion": {
+                  "type": "number"
+                },
+                "recordingLimits": {
+                  "type": "object",
+                  "properties": {
+                    "answer": {
+                      "type": "number"
+                    },
+                    "host": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "answer",
+                    "host"
+                  ],
+                  "additionalProperties": false
+                },
+                "voicePlaybackUntil": {
+                  "type": "number"
+                },
+                "revealedSources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "string"
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "language": {
+                        "type": "string",
+                        "enum": [
+                          "en-IN",
+                          "hi-IN",
+                          "te-IN"
+                        ]
+                      },
+                      "seatId": {
+                        "type": "string"
+                      },
+                      "stepId": {
+                        "type": "string"
+                      },
+                      "epoch": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "original",
+                      "text",
+                      "language",
+                      "seatId",
+                      "stepId",
+                      "epoch"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "sessionId": {
+                  "type": "string"
+                },
+                "phaseEpoch": {
+                  "type": "number"
+                },
+                "roundCount": {
+                  "type": "number"
+                },
+                "durationMinutes": {
+                  "type": "number"
+                },
+                "animateTransition": {
+                  "type": "boolean"
+                },
+                "revision": {
+                  "type": "number"
+                },
+                "roomCode": {
+                  "type": "string"
+                },
+                "flowId": {
+                  "type": "string"
+                },
+                "scoring": {
+                  "type": "object",
+                  "properties": {
+                    "mindReader": {
+                      "type": "number"
+                    },
+                    "bamboozle": {
+                      "type": "number"
+                    },
+                    "aiDecoy": {
+                      "type": "number"
+                    },
+                    "factMatch": {
+                      "type": "number"
+                    },
+                    "favourite": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "mindReader",
+                    "bamboozle",
+                    "aiDecoy",
+                    "factMatch",
+                    "favourite"
+                  ],
+                  "additionalProperties": false
+                },
+                "step": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "lobby",
+                        "traits",
+                        "nomination",
+                        "callout",
+                        "catchphrase",
+                        "answer",
+                        "waiting",
+                        "vote",
+                        "reveal",
+                        "wildcard",
+                        "sync",
+                        "story",
+                        "verdict",
+                        "card",
+                        "summary",
+                        "secret",
+                        "guess",
+                        "judge",
+                        "spotlight-reveal"
+                      ]
+                    },
+                    "act": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 560003
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "durationMs": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "params": {
+                      "default": {},
+                      "type": "object",
+                      "properties": {
+                        "round": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "index": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "targetId": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "fact",
+                            "favourite"
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type",
+                    "act",
+                    "title",
+                    "durationMs",
+                    "params"
+                  ],
+                  "additionalProperties": false
+                },
+                "stepIndex": {
+                  "type": "number"
+                },
+                "stepCount": {
+                  "type": "number"
+                },
+                "deadline": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "paused": {
+                  "type": "boolean"
+                },
+                "interrupted": {
+                  "type": "boolean"
+                },
+                "players": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "initials": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "avatar": {
+                        "type": "number"
+                      },
+                      "score": {
+                        "type": "number"
+                      },
+                      "ready": {
+                        "type": "boolean"
+                      },
+                      "host": {
+                        "type": "boolean"
+                      },
+                      "controller": {
+                        "type": "string",
+                        "enum": [
+                          "human",
+                          "simulated",
+                          "ai"
+                        ]
+                      },
+                      "connected": {
+                        "type": "boolean"
+                      },
+                      "disconnectedAt": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "returnAfterRound": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      },
+                      "aiPoints": {
+                        "type": "number"
+                      },
+                      "adultConfirmed": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "initials",
+                      "color",
+                      "avatar",
+                      "score",
+                      "ready",
+                      "host",
+                      "controller",
+                      "connected",
+                      "disconnectedAt",
+                      "returnAfterRound",
+                      "aiPoints"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "setup": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
+                    },
+                    "spice": {
+                      "type": "string",
+                      "enum": [
+                        "mild",
+                        "medium",
+                        "spicy"
+                      ]
+                    },
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "remote",
+                        "same-room"
+                      ]
+                    },
+                    "adult": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "gameMode": {
+                      "type": "string",
+                      "enum": [
+                        "bluff",
+                        "spotlight"
+                      ]
+                    },
+                    "seatCount": {
+                      "type": "integer",
+                      "minimum": 2,
+                      "maximum": 7
+                    },
+                    "packId": {
+                      "type": "string",
+                      "enum": [
+                        "hostel-2am",
+                        "goa-trip"
+                      ]
+                    },
+                    "avatar": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 560003
+                    },
+                    "color": {
+                      "type": "string",
+                      "enum": [
+                        "#ffb020",
+                        "#b5b2d8",
+                        "#dca58d",
+                        "#a8baa0",
+                        "#93bed2"
+                      ]
+                    },
+                    "hostLanguage": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "hi",
+                        "hinglish"
+                      ]
+                    },
+                    "pace": {
+                      "type": "string",
+                      "enum": [
+                        "quick",
+                        "normal",
+                        "relaxed"
+                      ]
+                    },
+                    "guidedVoice": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "spice",
+                    "mode",
+                    "adult"
+                  ],
+                  "additionalProperties": false
+                },
+                "view": {
+                  "type": "object",
+                  "properties": {
+                    "viewerId": {
+                      "type": "string"
+                    },
+                    "phase": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "lobby"
+                            }
+                          },
+                          "required": [
+                            "type"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "traits"
+                            },
+                            "traits": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "left": {
+                                    "type": "string"
+                                  },
+                                  "right": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "left",
+                                  "right"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "friendId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "traits",
+                            "friendId"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "nomination"
+                            },
+                            "question": {
+                              "type": "string"
+                            },
+                            "selected": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "question",
+                            "selected"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "callout"
+                            },
+                            "callout": {
+                              "type": "object",
+                              "properties": {
+                                "trait": {
+                                  "type": "string"
+                                },
+                                "self": {
+                                  "type": "number"
+                                },
+                                "peers": {
+                                  "type": "number"
+                                },
+                                "gap": {
+                                  "type": "number"
+                                },
+                                "targetId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "trait",
+                                "self",
+                                "peers",
+                                "gap"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "line": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "callout",
+                            "line"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "catchphrase"
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "prompt",
+                            "sample"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "answer"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            },
+                            "isTarget": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "prompt",
+                            "sample",
+                            "isTarget"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "waiting"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "vote"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "isOwn": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text",
+                                  "isOwn"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "selected": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "canVote": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "prompt",
+                            "options",
+                            "selected",
+                            "canVote"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "reveal"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "isOwn": {
+                                    "type": "boolean"
+                                  },
+                                  "authorId": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "authorName": {
+                                    "type": "string"
+                                  },
+                                  "isTruth": {
+                                    "type": "boolean"
+                                  },
+                                  "isAI": {
+                                    "type": "boolean"
+                                  },
+                                  "voters": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text",
+                                  "isOwn",
+                                  "authorId",
+                                  "authorName",
+                                  "isTruth",
+                                  "isAI",
+                                  "voters"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "scoreEvents": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "playerId": {
+                                    "type": "string"
+                                  },
+                                  "rule": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mindReader",
+                                      "bamboozle",
+                                      "aiDecoy",
+                                      "factMatch",
+                                      "favourite"
+                                    ]
+                                  },
+                                  "points": {
+                                    "type": "number"
+                                  },
+                                  "round": {
+                                    "type": "number"
+                                  },
+                                  "controller": {
+                                    "type": "string",
+                                    "enum": [
+                                      "human",
+                                      "simulated",
+                                      "ai"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "playerId",
+                                  "rule",
+                                  "points",
+                                  "round"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "options",
+                            "scoreEvents"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "wildcard"
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "prompt",
+                            "sample"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "sync"
+                            },
+                            "question": {
+                              "type": "string"
+                            },
+                            "selected": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "results": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "playerId": {
+                                        "type": "string"
+                                      },
+                                      "count": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "playerId",
+                                      "count"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "question",
+                            "selected",
+                            "results"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "story"
+                            },
+                            "title": {
+                              "type": "string"
+                            },
+                            "paragraphs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "title",
+                            "paragraphs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "verdict"
+                            },
+                            "winners": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "totalBluffs": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "winners",
+                            "totalBluffs"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "card"
+                            },
+                            "card": {
+                              "type": "object",
+                              "properties": {
+                                "subjectId": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "quote": {
+                                  "type": "string"
+                                },
+                                "traits": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "label": {
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "label",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "caseId": {
+                                  "type": "string"
+                                },
+                                "avatar": {
+                                  "type": "number"
+                                },
+                                "color": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "subjectId",
+                                "name",
+                                "title",
+                                "quote",
+                                "traits",
+                                "caseId",
+                                "avatar",
+                                "color"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "approved": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "card",
+                            "approved"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "summary"
+                            },
+                            "card": {
+                              "type": "object",
+                              "properties": {
+                                "subjectId": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "quote": {
+                                  "type": "string"
+                                },
+                                "traits": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "label": {
+                                        "type": "string"
+                                      },
+                                      "value": {
+                                        "type": "number"
+                                      }
+                                    },
+                                    "required": [
+                                      "label",
+                                      "value"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "caseId": {
+                                  "type": "string"
+                                },
+                                "avatar": {
+                                  "type": "number"
+                                },
+                                "color": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "subjectId",
+                                "name",
+                                "title",
+                                "quote",
+                                "traits",
+                                "caseId",
+                                "avatar",
+                                "color"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "approved": {
+                              "type": "boolean"
+                            },
+                            "scores": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "score": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "score"
+                                ],
+                                "additionalProperties": false
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "card",
+                            "approved",
+                            "scores"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "secret"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fact",
+                                "favourite"
+                              ]
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "standIn": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "kind",
+                            "prompt",
+                            "sample",
+                            "options",
+                            "standIn"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "guess"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fact",
+                                "favourite"
+                              ]
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "standIn": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "kind",
+                            "prompt",
+                            "sample",
+                            "options",
+                            "standIn"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "judge"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fact",
+                                "favourite"
+                              ]
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "sample": {
+                              "type": "string"
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "standIn": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "kind",
+                            "prompt",
+                            "sample",
+                            "options",
+                            "standIn"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "const": "spotlight-reveal"
+                            },
+                            "round": {
+                              "type": "number"
+                            },
+                            "targetId": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fact",
+                                "favourite"
+                              ]
+                            },
+                            "prompt": {
+                              "type": "string"
+                            },
+                            "answer": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "authors": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "isAI": {
+                                    "type": "boolean"
+                                  },
+                                  "selected": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "text",
+                                  "authors",
+                                  "isAI",
+                                  "selected"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "scoreEvents": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "playerId": {
+                                    "type": "string"
+                                  },
+                                  "rule": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mindReader",
+                                      "bamboozle",
+                                      "aiDecoy",
+                                      "factMatch",
+                                      "favourite"
+                                    ]
+                                  },
+                                  "points": {
+                                    "type": "number"
+                                  },
+                                  "round": {
+                                    "type": "number"
+                                  },
+                                  "controller": {
+                                    "type": "string",
+                                    "enum": [
+                                      "human",
+                                      "simulated",
+                                      "ai"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "playerId",
+                                  "rule",
+                                  "points",
+                                  "round"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "standIn": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "round",
+                            "targetId",
+                            "kind",
+                            "prompt",
+                            "answer",
+                            "options",
+                            "scoreEvents",
+                            "standIn"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "actionPending": {
+                      "type": "boolean"
+                    },
+                    "submitted": {
+                      "type": "boolean"
+                    },
+                    "completed": {
+                      "type": "number"
+                    },
+                    "required": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "viewerId",
+                    "phase",
+                    "actionPending",
+                    "submitted",
+                    "completed",
+                    "required"
+                  ],
+                  "additionalProperties": false
+                },
+                "notice": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "serverTime": {
+                  "type": "number"
+                },
+                "canAskHost": {
+                  "type": "boolean"
+                },
+                "host": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "audioUrl": {
+                      "type": "string"
+                    },
+                    "speakingSeat": {
+                      "type": "string"
+                    },
+                    "deadline": {
+                      "type": "number"
+                    },
+                    "playbackSeat": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "text"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "protocol_version",
+                "online",
+                "sessionId",
+                "phaseEpoch",
+                "roundCount",
+                "durationMinutes",
+                "revision",
+                "roomCode",
+                "flowId",
+                "scoring",
+                "step",
+                "stepIndex",
+                "stepCount",
+                "deadline",
+                "paused",
+                "interrupted",
+                "players",
+                "setup",
+                "view",
+                "notice",
+                "serverTime"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "snapshot"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ack"
+            },
+            "cid": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "number"
+            },
+            "accepted": {
+              "type": "boolean"
+            },
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "cid",
+            "revision",
+            "accepted"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "error"
+            },
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "pong"
+            },
+            "serverTime": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "serverTime"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "audio": {
+    "path": "/api/v1/audio",
+    "prepare": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "runId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "connectionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "type": {
+          "type": "string",
+          "const": "prepare"
+        },
+        "protocol_version": {
+          "type": "number",
+          "const": 6
+        }
+      },
+      "required": [
+        "roomId",
+        "runId",
+        "connectionId",
+        "type",
+        "protocol_version"
+      ],
+      "additionalProperties": false
+    },
+    "start": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "start"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "runId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "connectionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "stepId": {
+          "type": "string"
+        },
+        "phaseEpoch": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "answer",
+            "host"
+          ]
+        },
+        "diagnosticConsent": {
+          "default": false,
+          "type": "boolean"
+        },
+        "sampleRate": {
+          "type": "number",
+          "const": 16000
+        },
+        "captureId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "language": {
+          "type": "string",
+          "enum": [
+            "en-IN",
+            "hi-IN",
+            "te-IN"
+          ]
+        },
+        "hostBeatId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "hostTurn": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "required": [
+        "type",
+        "roomId",
+        "runId",
+        "connectionId",
+        "stepId",
+        "phaseEpoch",
+        "purpose",
+        "diagnosticConsent",
+        "sampleRate",
+        "captureId"
+      ],
+      "additionalProperties": false
+    },
+    "server": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "prepared"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "accepted"
+            },
+            "captureId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "remainingRecordings": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "captureId",
+            "remainingRecordings"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ready"
+            },
+            "sampleRate": {
+              "type": "number",
+              "const": 16000
+            },
+            "frameBytes": {
+              "type": "number",
+              "const": 1024
+            },
+            "maxSeconds": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "sessionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "sampleRate",
+            "frameBytes",
+            "maxSeconds",
+            "sessionId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "segment"
+            },
+            "id": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "audioMs": {
+              "type": "number"
+            },
+            "latencyMs": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "id",
+            "text",
+            "audioMs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "transcript"
+            },
+            "text": {
+              "type": "string"
+            },
+            "final": {
+              "type": "boolean",
+              "const": true
+            },
+            "mediaId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "captureId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "type",
+            "text",
+            "final",
+            "captureId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "error"
+            },
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "binary": {
+      "encoding": "PCM16LE",
+      "channels": 1,
+      "sampleRate": 16000,
+      "frameBytes": 1024,
+      "cadenceMs": 32
+    },
+    "control": [
+      "stop",
+      "cancel"
+    ],
+    "events": [
+      "prepared",
+      "ready",
+      "accepted",
+      "segment",
+      "transcript",
+      "error"
+    ]
+  }
+}

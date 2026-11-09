@@ -1,0 +1,83 @@
+/** Curated vocabulary only. Never semantic/LLM scoring. Each question receives relevant entries. */
+export const multilingualAliases: Record<string, string[]> = {
+  blue: ["नीला", "नीले", "నీలం", "neela", "neelam"],
+  black: ["काला", "నలుపు", "kala", "nalupu"],
+  red: ["लाल", "ఎరుపు", "laal", "lal", "erupu"],
+  green: ["हरा", "ఆకుపచ్చ", "hara", "aakupacha"],
+  purple: ["बैंगनी", "ఊదా", "baingani"],
+  white: ["सफेद", "తెలుపు", "safed", "telupu"],
+  gray: ["धूसर", "బూడిద", "grey"],
+  chai: ["चाय", "టీ", "చాయ్", "tea"],
+  coffee: ["कॉफी", "కాఫీ"],
+  water: ["पानी", "నీళ్లు", "నీరు", "paani", "pani", "neellu", "neeru"],
+  cola: ["कोला", "కోలా", "coke"],
+  milk: ["दूध", "పాలు", "doodh", "paalu"],
+  "coconut water": [
+    "नारियल पानी",
+    "కొబ్బరి నీళ్లు",
+    "కొబ్బరి నీరు",
+    "nariyal pani",
+    "kobbari neellu",
+  ],
+  lemonade: ["नींबू पानी", "నిమ్మరసం", "nimbu pani", "nimma rasam"],
+  maggi: ["मैगी", "మ్యాగీ", "maggie"],
+  samosa: ["समोसा", "సమోసా"],
+  chips: ["चिप्स", "చిప్స్", "crisps"],
+  pizza: ["पिज्जा", "पिज़्ज़ा", "పిజ్జా"],
+  biscuits: ["बिस्कुट", "బిస్కెట్లు", "cookies"],
+  sandwich: ["सैंडविच", "శాండ్విచ్"],
+  fruit: ["फल", "పండ్లు", "phal"],
+  nuts: ["मेवे", "గింజలు"],
+  winter: ["सर्दी", "सर्दियाँ", "శీతాకాలం", "sardi"],
+  summer: ["गर्मी", "गर्मियाँ", "వేసవి", "garmi"],
+  monsoon: ["बरसात", "వర్షాకాలం", "barsaat"],
+  spring: ["वसंत", "వసంతం", "vasant"],
+  autumn: ["पतझड़", "శరదృతువు"],
+  comedy: ["कॉमेडी", "हास्य", "కామెడీ"],
+  horror: ["हॉरर", "डरावनी", "హారర్"],
+  action: ["एक्शन", "యాక్షన్"],
+  romance: ["रोमांस", "రొమాన్స్"],
+  thriller: ["थ्रिलर", "థ్రిల్లర్"],
+  "ice cream": ["आइसक्रीम", "आइस क्रीम", "ఐస్ క్రీమ్", "icecream"],
+  chocolate: ["चॉकलेट", "చాక్లెట్"],
+  jalebi: ["जलेबी", "జిలేబి"],
+  "gulab jamun": ["गुलाब जामुन", "గులాబ్ జామున్"],
+  cake: ["केक", "కేక్"],
+  sunrise: ["सूर्योदय", "సూర్యోదయం", "suryoday"],
+  sunset: ["सूर्यास्त", "సూర్యాస్తమయం", "suryast"],
+  beach: ["समुद्र तट", "बीच", "బీచ్"],
+  fort: ["किला", "కోట", "qila"],
+  market: ["बाज़ार", "बाजार", "మార్కెట్", "bazaar"],
+  charger: ["चार्जर", "ఛార్జర్"],
+  sunscreen: ["सनस्क्रीन", "సన్ స్క్రీన్"],
+  towel: ["तौलिया", "టవల్"],
+  sunglasses: ["धूप का चश्मा", "సన్ గ్లాసెస్"],
+  nothing: ["कुछ नहीं", "ఏమీ లేదు", "kuch nahi"],
+  train: ["ट्रेन", "रेलगाड़ी", "రైలు"],
+  flight: ["हवाई जहाज़", "फ्लाइट", "విమానం"],
+  "road trip": ["सड़क यात्रा", "रोड ट्रिप", "రోడ్ ట్రిప్"],
+  bollywood: ["बॉलीवुड", "బాలీవుడ్"],
+  pop: ["पॉप", "పాప్"],
+  indie: ["इंडी", "ఇండీ"],
+  rock: ["रॉक", "రాక్"],
+  punjabi: ["पंजाबी", "పంజాబీ"],
+};
+export function aliasesFor(
+  samples: string[],
+  existing: Record<string, string> = {},
+) {
+  const relevant = new Set([
+    ...samples.map((s) => s.toLowerCase()),
+    ...Object.values(existing),
+  ]);
+  return {
+    ...existing,
+    ...Object.fromEntries(
+      Object.entries(multilingualAliases)
+        .filter(([canonical]) => relevant.has(canonical))
+        .flatMap(([canonical, variants]) =>
+          variants.map((v) => [v, canonical]),
+        ),
+    ),
+  };
+}

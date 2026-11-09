@@ -1,0 +1,34 @@
+name: Verify Expose
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: expose
+          POSTGRES_PASSWORD: expose_local_only
+          POSTGRES_DB: expose
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U expose"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: cp backend/.env.example backend/.env
+      - run: PGPASSWORD=expose_local_only createdb -h 127.0.0.1 -p 5433 -U expose expose_test
+      - run: npm run db:migrate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: node node_modules/tsx/dist/cli.mjs backend/src/contract-docs.ts --check
+      - run: npm test
+      - run: npx --workspace frontend playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run build
+      - run: PLAYWRIGHT_PRODUCTION=1 PLAYWRIGHT_PORT=3002 npm run test:e2e -- pwa.spec.ts
