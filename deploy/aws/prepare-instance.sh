@@ -36,7 +36,7 @@ else
   mount "UUID=$uuid" /srv/expose
 fi
 grep -q "^UUID=$uuid " /etc/fstab || printf 'UUID=%s /srv/expose ext4 defaults 0 2\n' "$uuid" >> /etc/fstab
-install -d -o expose -g expose -m 0700 /srv/expose/media /srv/expose/gc2
+install -d -o expose -g expose -m 0700 /srv/expose/media /srv/expose/gc2 /srv/expose/state
 install -d -o postgres -g postgres -m 0700 /srv/expose/postgres
 install -d -o caddy -g caddy -m 0700 /srv/expose/caddy
 install -d -o root -g expose -m 0750 /etc/expose
@@ -92,7 +92,7 @@ values = {
  'PUBLIC_ORIGIN':'https://'+sys.argv[1], 'ALLOWED_ORIGINS':'https://'+sys.argv[1],
  'COOKIE_SECURE':'true', 'TRUST_PROXY_LOOPBACK':'true',
  'MEDIA_ROOT':'/srv/expose/media', 'GC2_MEDIA_ROOT':'/srv/expose/gc2',
- 'AI_STOP_FILE':'/srv/expose/ai-stopped', 'AI_ENABLED':'false',
+ 'AI_STOP_FILE':'/srv/expose/state/ai-stopped', 'AI_ENABLED':'false',
  'HOST_LLM_PROVIDER':'gemini', 'AI_PROFILE':'full-match'
 }
 lines=Path('/opt/expose/app/backend/.env.example').read_text().splitlines()
@@ -121,7 +121,8 @@ $hostname {
     header X-Robots-Tag "noindex, nofollow, noarchive"
     header X-Content-Type-Options "nosniff"
     handle /robots.txt {
-        respond "User-agent: *\nDisallow: /" 200
+        respond "User-agent: *
+Disallow: /" 200
     }
     handle {
         reverse_proxy 127.0.0.1:3000

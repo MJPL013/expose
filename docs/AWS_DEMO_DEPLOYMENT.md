@@ -14,7 +14,7 @@ In the AWS console select **Mumbai → EC2 → Instances → expose-demo-server 
 
 ## 2. Create your configuration
 
-After server preparation completes, copy the template **once**:
+Server preparation and the Linux production build are complete. Copy the template **once**:
 
 ```bash
 sudo test ! -e /etc/expose/backend.env && sudo install -o root -g expose -m 0640 /etc/expose/backend.env.template /etc/expose/backend.env
@@ -78,7 +78,7 @@ sudo -u expose env NODE_OPTIONS=--max-old-space-size=1536 npm run build
 sudo bash deploy/aws/start-app.sh
 ```
 
-Use a fresh backup before migrations. Code rollback does not undo database migrations. A failed build leaves the service stopped; do not continue until it succeeds. The existing `.env` and data stay outside Git.
+Keep a private off-instance backup of the database, media and server configuration before migrations. Retention on the same disk is not a backup. Code rollback does not undo database migrations. A failed build leaves the service stopped; do not continue until it succeeds. The existing `.env` and data stay outside Git.
 
 ## Cost and stopping
 
@@ -98,4 +98,4 @@ The preparation script identifies the exact EBS volume, refuses unknown disk con
 
 ## Verification
 
-Infrastructure creation and SSM access verified on 10 November 2026. Installation/build/HTTPS results are recorded in [status](STATUS.md) as they complete. AWS template validation and change-set review passed; local cfn-lint/cfn-guard checks were not run. Live AI, microphone quality, PC/phone play and restore drills remain separate acceptance work. Historical test failures remain documented; this deployment does not certify the full suite.
+Infrastructure creation, EC2 system/instance/EBS checks, SSM access, encrypted disks, HTTPS certificate, private PostgreSQL socket and configuration permissions verified on 10 November 2026. Linux production build passed; Expose remains stopped and database migrations run only when you start it. HTTPS robots/noindex and the actual PostgreSQL driver connection were verified. See [status](STATUS.md). Backend typecheck and four inline forwarded-IP checks passed. Existing transactional checks: 12 passed, one AI-host optional-reply timing assertion failed. AWS template validation and change-set review passed; local cfn-lint/cfn-guard checks were not run. Live AI, microphone quality, PC/phone play and restore drills remain separate acceptance work. Historical test failures remain documented; this deployment does not certify the full suite.

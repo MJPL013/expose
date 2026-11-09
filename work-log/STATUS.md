@@ -1,6 +1,6 @@
 # Current status
 
-**10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Server preparation is underway; application remains stopped pending manual .env configuration. Follow the [EC2 runbook](../docs/AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
+**10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Native runtime installation and Linux production build passed; HTTPS, private PostgreSQL driver connection, encrypted storage and file permissions were verified. Application remains stopped pending manual .env configuration. Backend typecheck and four forwarded-IP checks passed; existing transactional suite passed 12 of 13 checks, with an optional-reply timing assertion still failing. Follow the [EC2 runbook](../docs/AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
 
 ## B073 — EC2 source preparation, 10 November 2026
 
