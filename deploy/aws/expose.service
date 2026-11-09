@@ -1,0 +1,27 @@
+[Unit]
+Description=Expose application
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+RequiresMountsFor=/srv/expose
+ConditionPathExists=/etc/expose/backend.env
+
+[Service]
+Type=simple
+User=expose
+Group=expose
+WorkingDirectory=/opt/expose/app
+ExecStart=/usr/bin/node scripts/dev.mjs --production
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

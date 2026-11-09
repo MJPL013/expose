@@ -12,6 +12,7 @@ const schema = z.object({
     .string()
     .default("http://localhost:3000,http://127.0.0.1:3000"),
   COOKIE_SECURE: z.string().default("false"),
+  TRUST_PROXY_LOOPBACK: z.enum(["true", "false"]).default("false"),
   MEDIA_ROOT: z.string().default(".data/media"),
   AI_ENABLED: z.string().default("false"),
   AI_STOP_FILE: z.string().default(".data/ai-stopped"),

@@ -10,7 +10,6 @@
       "why": "Small demo with one backend socket owner and local PostgreSQL.",
       "must": [
         "No secrets in this template or user data.",
-        "Do not launch before cost and runtime duration are agreed.",
         "Retained data volume remains billable after stack deletion."
       ]
     }
@@ -18,12 +17,12 @@
   "Parameters": {
     "InstanceType": {
       "Type": "String",
-      "Default": "t3.medium",
+      "Default": "t3.small",
       "AllowedValues": [
         "t3.small",
         "t3.medium"
       ],
-      "Description": "medium recommended initially; small requires memory validation."
+      "Description": "Lower-cost demo; use swap for builds and validate memory under load."
     },
     "ImageId": {
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",

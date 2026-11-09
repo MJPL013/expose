@@ -84,7 +84,8 @@ export async function buildServer(
         }
       : false,
     bodyLimit: 256 * 1024,
-    trustProxy: false,
+    trustProxy:
+      config.TRUST_PROXY_LOOPBACK === "true" ? ["127.0.0.1", "::1"] : false,
   });
   await app.register(cookie);
   await app.register(rateLimit, {

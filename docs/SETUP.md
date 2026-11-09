@@ -1,5 +1,7 @@
 # Local development and private phone playtests
 
+**EC2 demo, 10 November 2026 (B074):** see [server setup and operations](AWS_DEMO_DEPLOYMENT.md). TRUST_PROXY_LOOPBACK defaults off; the loopback-only EC2 proxy enables it to preserve client IPs for rate limits. PostgreSQL uses a local Unix socket; recordings/data live on retained encrypted storage.
+
 ## Quick Void guest entry — 9 November 2026, B071
 
 Open **http://localhost:3000/void** and choose **Continue as guest**. Allow the microphone to speak, or select **I'd rather type** first. No Google client or signup is needed. Returning visits show **Enter The Void** and the history icon. The disclosure on first entry explains retained recordings/transcripts/reflections; there is no separate consent checkbox.

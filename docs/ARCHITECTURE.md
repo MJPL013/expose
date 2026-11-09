@@ -1,5 +1,7 @@
 # Architecture and system connections
 
+**EC2 demo, 10 November 2026 (B074):** see [server setup and operations](AWS_DEMO_DEPLOYMENT.md). TRUST_PROXY_LOOPBACK defaults off; the loopback-only EC2 proxy enables it to preserve client IPs for rate limits. PostgreSQL uses a local Unix socket; recordings/data live on retained encrypted storage.
+
 ## Shared accounts and story pipeline — 9 November 2026, B069
 
 Neutral authentication and saved game data now live in `backend/src/accounts`; physical account IDs remain unchanged. GC2 owns its independent conversation, post-Finish analysis, graph/vector/comparison modules and queues. Fast conversation and slower interpretation use independently configured provider roles, never automatic fallback. PostgreSQL remains authoritative; media stays private on persistent storage. No persona extraction runs per answer for version 2. See [the complete architecture](ACCOUNTS_AND_STORY_GRAPHS.md). Game 1 scoring/socket protocol 6 remain unchanged.

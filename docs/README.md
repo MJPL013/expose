@@ -1,5 +1,7 @@
 # Expose documentation
 
+**10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Server preparation is underway; application remains stopped pending manual .env configuration. Follow the [EC2 runbook](AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
+
 **10 November 2026 — B073 deployment source:** the requested `ec2` branch snapshots the current application from `main`. See [EC2 delivery and pending launch work](AWS_DEMO_DEPLOYMENT.md). Publishing source does not deploy the application.
 
 **9 November 2026 — B071 guest Void entry:** Google is now optional for The Void, explicitly revising B069/B070. Choose **Continue as guest**; a private cookie remembers this browser and the existing local server stores its history, recordings and analysis. Separate browsers have separate profiles. Friends retain their existing guest play. Read [quick entry](SETUP.md#quick-void-guest-entry--9-november-2026-b071) and [identity/storage behavior](ACCOUNTS_AND_STORY_GRAPHS.md#browser-guests--9-november-2026-b071). Administrator access remains protected.

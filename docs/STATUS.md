@@ -1,8 +1,10 @@
 # Current implementation and remaining work
 
+**10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Server preparation is underway; application remains stopped pending manual .env configuration. Follow the [EC2 runbook](AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
+
 ## B073 — EC2 source preparation, 10 November 2026
 
-Preparing a GitHub `ec2` application snapshot directly from `main`, preserving the dirty local `v2` checkout. CloudFormation is a draft; cost selection, infrastructure creation, server configuration, Linux build and HTTPS/device acceptance remain pending. This publication adds no new live-provider verification. See [deployment notes](AWS_DEMO_DEPLOYMENT.md).
+Published GitHub `ec2` commit `220a81c` directly from `main`, preserving the dirty local `v2` checkout and normal staging index. Verified the remote hash and scanned all 290 published files for configured provider credentials and common secret patterns. CloudFormation is a draft; cost selection, infrastructure creation, server configuration, Linux build and HTTPS/device acceptance remain pending. This publication adds no new live-provider verification. See [deployment notes](AWS_DEMO_DEPLOYMENT.md).
 
 ## B071 — Guest Void access, 9 November 2026
 
