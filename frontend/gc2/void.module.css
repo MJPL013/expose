@@ -1,0 +1,622 @@
+.root {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  isolation: isolate;
+}
+.header {
+  min-height: 76px;
+  padding: max(16px, env(safe-area-inset-top)) clamp(18px, 4vw, 48px) 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+  font: 600 17px var(--font-heading);
+  letter-spacing: -0.03em;
+}
+.brand small {
+  border-left: 1px solid var(--border);
+  padding-left: 12px;
+  font: 500 11px var(--font-body);
+  letter-spacing: 0.12em;
+  color: var(--secondary);
+  text-transform: uppercase;
+}
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+.icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.icon:hover {
+  color: var(--text);
+  border-color: var(--control-border);
+}
+.root :is(button, a, textarea, select, input):focus-visible,
+.choiceCard:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 5px;
+}
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.landing {
+  width: min(100%, 820px);
+  min-height: 100%;
+  margin: auto;
+  padding: 8px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+.landing h1 {
+  margin: 15px 0 0;
+  font: 500 clamp(36px, 5vw, 62px)/1.04 var(--font-heading);
+  letter-spacing: -0.055em;
+  max-width: 650px;
+}
+.landing h1 em {
+  font-style: normal;
+  color: var(--secondary);
+}
+.intro {
+  color: var(--secondary);
+  font-size: 15px;
+  max-width: 340px;
+  margin: 20px auto 0;
+}
+.eclipse {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.landingOrb {
+  width: clamp(230px, 34vh, 360px);
+  height: clamp(230px, 34vh, 360px);
+  margin: -7px 0 -16px;
+  flex-shrink: 0;
+}
+.primary {
+  min-height: 50px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #21170b;
+  font: 700 14px var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition:
+    background 160ms,
+    transform 160ms;
+}
+.primary:hover {
+  background: #ffc45d;
+  transform: translateY(-1px);
+}
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+.secondary {
+  min-height: 44px;
+  padding: 10px 15px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font: 500 14px var(--font-body);
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+.secondary:hover {
+  background: var(--surface);
+}
+.secondary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.textButton {
+  min-height: 44px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 13px;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.disclosure {
+  max-width: 380px;
+  margin: 16px auto 0;
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.disclosure label {
+  display: flex;
+  text-align: left;
+  gap: 10px;
+  align-items: flex-start;
+}
+.disclosure input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+.notice {
+  color: var(--secondary);
+  font-size: 13px;
+  max-width: 420px;
+  margin: 16px auto;
+  text-align: center;
+}
+.error {
+  color: var(--error-text);
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 480px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 12px auto;
+}
+.conversation {
+  min-height: 100%;
+  width: min(100%, 840px);
+  margin: auto;
+  padding: 10px 24px 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.orbStage {
+  width: clamp(220px, 42vh, 430px);
+  height: clamp(220px, 42vh, 430px);
+  flex-shrink: 0;
+  margin: -18px 0;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  min-height: 24px;
+}
+.status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: var(--accent-text);
+  border-radius: 100%;
+}
+.caption {
+  font: 500 clamp(21px, 2.9vw, 30px)/1.35 var(--font-heading);
+  letter-spacing: -0.025em;
+  width: min(100%, 640px);
+  margin: 20px auto 16px;
+  overflow-wrap: anywhere;
+}
+.reflection {
+  max-width: 480px;
+  color: var(--secondary);
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+.reflection strong {
+  font-weight: 500;
+}
+.reflection button {
+  min-height: 44px;
+  color: var(--accent-text);
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px 12px;
+}
+.dock {
+  flex-shrink: 0;
+  padding: 14px 20px max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+.dockButton {
+  min-height: 48px;
+  padding: 10px 18px;
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.dockButton[data-active="true"] {
+  border-color: var(--selected-border);
+  color: var(--accent-text);
+  background: var(--selected-surface);
+}
+.composer {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  width: min(100%, 660px);
+  margin: 16px auto 0;
+}
+.composer textarea {
+  resize: vertical;
+  min-height: 74px;
+  max-height: 160px;
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--control-border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 13px 16px;
+  font: 16px/1.5 var(--font-body);
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+.settings {
+  display: grid;
+  gap: 20px;
+}
+.settings label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.settings select {
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 12px;
+  min-height: 46px;
+  font: inherit;
+}
+.settings p {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 13px;
+}
+.history {
+  width: min(100%, 760px);
+  margin: auto;
+  padding: 24px 24px 56px;
+}
+.history h1 {
+  font: 500 clamp(30px, 4vw, 46px)/1.1 var(--font-heading);
+  letter-spacing: -0.04em;
+  margin: 12px 0 24px;
+}
+.historyItem {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+.historyItem h2 {
+  font: 500 22px/1.25 var(--font-heading);
+  margin: 10px 0;
+}
+.historyItem p {
+  color: var(--secondary);
+  font-size: 14px;
+  max-width: 480px;
+}
+.historyItem time {
+  color: var(--secondary);
+  font-size: 12px;
+}
+.empty {
+  color: var(--secondary);
+  padding: 50px 0;
+  max-width: 340px;
+}
+.reveal {
+  width: min(100%, 700px);
+  margin: auto;
+  text-align: center;
+  padding: 20px 24px 46px;
+}
+.revealMark {
+  width: 130px;
+  height: 130px;
+  margin: -12px auto;
+}
+.quote {
+  font: 500 clamp(30px, 4.5vw, 48px)/1.13 var(--font-heading);
+  letter-spacing: -0.045em;
+  margin: 25px auto;
+  max-width: 640px;
+}
+.attribution {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+.persona {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 24px;
+  margin: 30px 0 18px;
+  text-align: left;
+}
+.persona h2 {
+  color: var(--accent-text);
+  font: 500 26px/1.2 var(--font-heading);
+  letter-spacing: -0.03em;
+  margin: 6px 0 16px;
+}
+.persona p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--secondary);
+  margin: 12px 0 0;
+}
+.feedback {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+.feedback button[aria-pressed="true"] {
+  border-color: var(--accent-text);
+  color: var(--accent-text);
+}
+.approval {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  color: var(--secondary);
+  margin-bottom: 10px;
+}
+.approval input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary);
+}
+.homeChoices {
+  width: min(100%, 1000px);
+  margin: auto;
+  padding: 30px clamp(20px, 4vw, 46px);
+}
+.homeChoices h1 {
+  font: 500 clamp(30px, 4vw, 46px)/1.1 var(--font-heading);
+  letter-spacing: -0.045em;
+  margin: 10px 0 28px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.choiceCard {
+  min-height: 335px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  color: var(--text);
+  text-decoration: none;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition:
+    border-color 180ms,
+    transform 180ms;
+}
+.choiceCard:hover {
+  border-color: var(--control-border);
+  transform: translateY(-3px);
+}
+.choiceCard h2 {
+  font: 500 30px/1.1 var(--font-heading);
+  letter-spacing: -0.035em;
+  margin: 0 0 10px;
+}
+.choiceCard p {
+  font-size: 14px;
+  color: var(--secondary);
+  max-width: 250px;
+  margin: 0;
+}
+.choiceCard footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--accent-text);
+}
+.cardOrb {
+  width: 230px;
+  height: 190px;
+  margin: -10px auto;
+}
+.friendsArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 170px;
+  gap: 0;
+}
+.friendsArt > *:nth-child(1) {
+  transform: rotate(-12deg) translateX(9px);
+}
+.friendsArt > *:nth-child(2) {
+  transform: translateY(-12px);
+  z-index: 1;
+}
+.friendsArt > *:nth-child(3) {
+  transform: rotate(12deg) translateX(-9px);
+}
+@media (max-width: 600px) {
+  .header {
+    min-height: 66px;
+    padding-inline: 18px;
+  }
+  .brand small {
+    display: none;
+  }
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .choiceCard {
+    min-height: 230px;
+    padding: 20px;
+  }
+  .cardOrb {
+    position: absolute;
+    top: 4px;
+    right: -20px;
+    width: 185px;
+    height: 185px;
+    opacity: 0.85;
+  }
+  .friendsArt {
+    position: absolute;
+    right: 8px;
+    top: 12px;
+    transform: scale(0.7);
+    transform-origin: right top;
+    width: 185px;
+  }
+  .choiceCard > .eyebrow {
+    margin-bottom: 45px;
+  }
+  .choiceCard h2,
+  .choiceCard p {
+    max-width: 220px;
+    position: relative;
+  }
+  .choiceCard h2 {
+    font-size: 27px;
+  }
+  .homeChoices {
+    padding: 22px 18px;
+  }
+  .landing {
+    padding: 10px 22px 30px;
+  }
+  .orbStage {
+    width: min(82vw, 36vh);
+    height: min(82vw, 36vh);
+  }
+  .conversation {
+    padding-inline: 22px;
+  }
+  .dock {
+    gap: 8px;
+    padding-inline: 14px;
+  }
+  .dockButton {
+    padding: 10px 14px;
+  }
+  .historyItem {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-height: 680px) {
+  .landingOrb {
+    width: 190px;
+    height: 190px;
+  }
+  .orbStage {
+    width: 210px;
+    height: 210px;
+  }
+  .caption {
+    font-size: 21px;
+    margin-top: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .primary,
+  .choiceCard {
+    transition: none;
+  }
+  .primary:hover,
+  .choiceCard:hover {
+    transform: none;
+  }
+}
+:global([data-reduce-motion="true"]) .choiceCard,
+:global([data-reduce-motion="true"]) .primary {
+  transition: none;
+  transform: none;
+}

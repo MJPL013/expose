@@ -1,0 +1,41 @@
+node_modules/
+**/node_modules/
+**/.next/
+**/dist/
+**/.data/
+**/test-results/
+**/test-results-production/
+**/playwright-report/
+**/coverage/
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+!**/.env.example
+.firecrawl/
+.tools/
+
+# Local evidence, drafts, tooling and private runtime material
+frontend/artifacts/
+reference-images/
+Mock_website/
+frontend/color palette/
+work-log/verification/
+.aws/
+.codex/
+.agents/
+**/*.log
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.sqlite*
+**/*.dump
+**/*.bak
+**/credentials
+**/.DS_Store
+**/Thumbs.db
+# Duplicate source asset; the canonical sample is retained.
+frontend/public/audio/samples/* (1).mp3
+
+# Generated from pinned VAD dependencies during dev/build
+frontend/public/audio/vad/

@@ -1,0 +1,205 @@
+.page {
+  height: 100%;
+  overflow: auto;
+  padding: clamp(18px, 4vw, 40px);
+  color: var(--text);
+  background: var(--bg);
+}
+.inner {
+  max-width: 1280px;
+  margin: auto;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.header h1 {
+  font: 500 clamp(30px, 4vw, 48px) var(--font-heading);
+  letter-spacing: -0.04em;
+  margin: 8px 0;
+}
+.eyebrow {
+  color: var(--accent-text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+.page p,
+.approval p {
+  color: var(--secondary);
+  line-height: 1.6;
+}
+.toolbar,
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.toolbar label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.page :is(button, a),
+.approval button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface, var(--bg));
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+}
+.page :is(select, input),
+.approval textarea {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface, var(--bg));
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+  max-width: 100%;
+}
+.page :is(button, a, input, select, summary):focus-visible,
+.approval :is(button, textarea, summary):focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 4px;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.canvas {
+  height: 540px;
+  min-height: 320px;
+  position: relative;
+  background: var(--bg);
+}
+.graph {
+  position: absolute;
+  inset: 0;
+}
+.tools {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+}
+.detail {
+  padding: 22px;
+  border-left: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.detail h2 {
+  font: 500 23px var(--font-heading);
+}
+.list {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+.list button {
+  width: 100%;
+  text-align: left;
+  justify-content: space-between;
+}
+.list small {
+  color: var(--secondary);
+}
+.list button[aria-pressed="true"] {
+  border-color: var(--accent-text);
+}
+.notice {
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 14px;
+}
+.legend {
+  font-size: 13px;
+}
+.approval {
+  width: min(100% - 32px, 680px);
+  margin: 24px auto;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  background: var(--bg);
+}
+.approval h2 {
+  font: 500 26px var(--font-heading);
+}
+.approval summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.approval fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 16px 0;
+  padding: 16px;
+}
+.approval label {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.approval textarea {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+.empty {
+  padding: 50px 20px;
+  text-align: center;
+}
+.badge {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+@media (max-width: 800px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .detail {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+  .canvas {
+    height: 380px;
+  }
+  .toolbar label {
+    flex: 1;
+    min-width: 140px;
+  }
+  .page {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .approval * {
+    scroll-behavior: auto;
+    transition: none !important;
+  }
+}

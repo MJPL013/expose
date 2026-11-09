@@ -1,0 +1,22 @@
+{
+  "name": "@expose/shared",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./game/*": "./src/game/*.ts",
+    "./network": "./src/network.ts",
+    "./gc2": "./src/gc2.ts",
+    "./account": "./src/account.ts",
+    "./gc2-graph": "./src/gc2-graph.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  }
+}

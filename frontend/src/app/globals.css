@@ -1,0 +1,256 @@
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource/anton";
+@import "@fontsource-variable/noto-sans-devanagari";
+
+:root {
+  color-scheme: dark;
+  --bg: #0e0d12;
+  --surface: #17161d;
+  --elevated: #1f1e27;
+  --border: #34323e;
+  --control-border: #77717e;
+  --paper: #f4efe6;
+  --paper-edge: #e6dec8;
+  --ink: #141318;
+  --primary: #ffb020;
+  --primary-pressed: #d9900b;
+  --siren: #ff3b3b;
+  --text: #f4efe6;
+  --secondary: #aaa5b5;
+  --muted: #656170;
+  --chrome: #121116;
+  --dock-surface: #17161df5;
+  --selected-surface: #332b20;
+  --selected-border: #655029;
+  --accent-text: #ffca69;
+  --success: #c6d9bc;
+  --error-text: #ff9c97;
+  --disabled-surface: #302c24;
+  --disabled-text: #a99a7d;
+  --font-body: "DM Sans Variable", "Noto Sans Devanagari Variable", sans-serif;
+  --font-heading:
+    "Bricolage Grotesque Variable", "Noto Sans Devanagari Variable", sans-serif;
+  --font-stamp: "Anton", sans-serif;
+  --radius: 24px;
+  --fast: 140ms;
+  --reveal: 320ms;
+}
+/* Warm paper, brass details and dark ink; evidence cards retain their paper identity. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ede5d7;
+  --chrome: #e7dcc9;
+  --surface: #faf4e9;
+  --elevated: #e9dfce;
+  --dock-surface: #f2e8d8f5;
+  --border: #d0bea3;
+  --control-border: #8d7b62;
+  --text: #29231c;
+  --secondary: #665741;
+  --muted: #786b58;
+  --paper: #fff8eb;
+  --paper-edge: #ddceb4;
+  --selected-surface: #f7dfa6;
+  --selected-border: #a9781b;
+  --accent-text: #805005;
+  --success: #3d6436;
+  --error-text: #9e302c;
+  --disabled-surface: #dfd3bf;
+  --disabled-text: #71634c;
+}
+* {
+  box-sizing: border-box;
+}
+:root[data-theme="light"] [data-brand-logo] { filter: brightness(.55) saturate(.85); }
+html {
+  background: var(--bg);
+  scroll-padding-block: 88px 130px;
+}
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  height: 100dvh;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 10%, #29201866, transparent 60%);
+  pointer-events: none;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+button svg,
+a svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+button,
+a {
+  -webkit-user-select: none;
+  user-select: none;
+}
+svg {
+  display: inline-block;
+}
+main :focus {
+  scroll-margin-block: 20px;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+a {
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+audio:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 4px;
+}
+input,
+textarea,
+select {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  width: 100%;
+  padding: 12px 14px;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--secondary);
+  opacity: 1;
+}
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+input[type="range"] {
+  padding: 0;
+  accent-color: var(--primary);
+  height: 44px;
+  cursor: pointer;
+}
+input[type="range"]:focus-visible {
+  outline-offset: 0;
+}
+textarea {
+  resize: vertical;
+  min-height: 112px;
+  line-height: 1.5;
+}
+label {
+  display: block;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+h1 {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+img,
+svg {
+  max-width: 100%;
+}
+audio {
+  width: 100%;
+  height: 44px;
+}
+::selection {
+  color: var(--ink);
+  background: var(--primary);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: fixed;
+  top: -90px;
+  left: 16px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--primary);
+  color: var(--ink);
+  border-radius: 12px;
+}
+.skip-link:focus {
+  top: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-reduce-motion="true"] *,
+html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

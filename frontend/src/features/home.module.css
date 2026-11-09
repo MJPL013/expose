@@ -1,0 +1,325 @@
+.homeScroll {
+  padding-top: 20px;
+}
+.pack {
+  background: var(--surface);
+  border: 1px solid #625137;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+}
+.packTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px 0;
+  position: relative;
+  z-index: 1;
+  color: var(--secondary);
+}
+.packTop > div > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.packTop h1 {
+  font-size: clamp(1.75rem, 6vw, 2.125rem);
+  margin-top: 9px;
+}
+.liveDot {
+  width: 5px;
+  height: 5px;
+  flex-shrink: 0;
+  background: var(--primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ffb02088;
+}
+.packArt {
+  height: clamp(180px, 30svh, 260px);
+  position: relative;
+  background: radial-gradient(ellipse at 50% 65%, #ffb02022, transparent 70%);
+  display: grid;
+  place-items: center;
+}
+.backFile {
+  position: absolute;
+  width: 173px;
+  height: 155px;
+  background: #786950;
+  border-radius: 9px;
+  transform: rotate(-15deg) translate(-30px, -3px);
+  color: #211d18;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.backFile > span {
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+}
+.frontFile {
+  width: min(80%, 260px);
+  min-height: 156px;
+  background: var(--paper);
+  border-radius: 10px;
+  transform: rotate(5deg) translate(5px, 0);
+  animation: caseArrive 360ms ease-out both;
+  color: var(--ink);
+  padding: 13px 15px;
+  box-shadow:
+    0 6px 0 #b9ab8c,
+    0 8px 25px #0008;
+}
+.frontFile > span {
+  display: block;
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+}
+.frontFile > strong {
+  font-family: var(--font-stamp);
+  font-size: 1.25rem;
+  font-weight: 400;
+  display: block;
+  margin: 7px 0 3px;
+}
+.portraits {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  margin-top: 12px;
+}
+.portraits > span + span {
+  margin-left: -12px;
+}
+.portraits > span:nth-child(2) {
+  z-index: 1;
+}
+.stamp {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  transform: rotate(-10deg);
+  animation: stampImpact 540ms cubic-bezier(0.22, 0.8, 0.25, 1) 180ms both;
+}
+.stamp > span {
+  font-size: clamp(1.75rem, 7vw, 2.25rem);
+  border-width: 3px;
+  background: var(--paper);
+}
+.packInfo {
+  padding: 20px;
+  border-top: 1px solid #ffffff0a;
+}
+.packInfo > p {
+  font-size: 0.75rem;
+  color: var(--secondary);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.chips > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #ffffff17;
+  color: var(--secondary);
+  font-size: 0.625rem;
+}
+.acts {
+  display: grid;
+  gap: 0;
+}
+.acts > div {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.acts > div > span {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--accent-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.acts h3 {
+  font-size: 0.9375rem;
+}
+.acts p {
+  font-size: 0.75rem;
+  color: var(--secondary);
+  margin-top: 5px;
+}
+.install {
+  margin-top: 26px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 18px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+}
+.install > svg {
+  color: var(--accent-text);
+}
+.install h2 {
+  font-size: 0.9375rem;
+}
+.install p {
+  font-size: 0.75rem;
+  color: var(--secondary);
+  margin-top: 6px;
+}
+.install > button {
+  grid-column: 1/-1;
+  margin-top: 5px;
+  font-size: 0.8125rem;
+}
+.privacy {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  color: var(--secondary);
+  margin-top: 24px;
+}
+.savedLink {
+  text-decoration: none;
+  color: var(--accent-text);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 15px;
+  margin-top: 24px;
+}
+.savedLink > span {
+  flex: 1;
+  min-width: 0;
+}
+.savedLink strong {
+  font-size: 0.8125rem;
+  display: block;
+}
+.savedLink small {
+  color: var(--secondary);
+  font-size: 0.75rem;
+}
+
+.characterLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  margin-top: 16px;
+  color: var(--secondary);
+  text-decoration: none;
+}
+.characterLink > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.characterLink strong {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.characterLink small {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.75rem;
+}
+@keyframes caseArrive {
+  from {
+    opacity: 0;
+    transform: translate(5px, 10px) rotate(2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate(5px, 0) rotate(5deg);
+  }
+}
+@keyframes stampImpact {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(-30px) rotate(-18deg) scale(1.8);
+  }
+  62% {
+    opacity: 1;
+    transform: translateY(2px) rotate(-9deg) scale(0.95);
+  }
+  80% {
+    transform: translateY(-1px) rotate(-11deg) scale(1.025);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-10deg) scale(1);
+  }
+}
+@media (max-width: 355px) {
+  .packTop {
+    padding: 16px 16px 0;
+  }
+  .packInfo {
+    padding: 16px;
+  }
+  .frontFile {
+    padding-inline: 12px;
+  }
+  .frontFile > strong {
+    font-size: 1.0625rem;
+  }
+  .portraits > span {
+    width: 64px;
+    height: 64px;
+  }
+  .chips {
+    gap: 5px;
+  }
+  .chips > span {
+    padding: 6px;
+    font-size: 0.5625rem;
+  }
+}
+@media (max-height: 650px) {
+  .homeScroll {
+    padding-top: 14px;
+  }
+  .packArt {
+    height: 180px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frontFile,
+  .stamp {
+    animation: none;
+  }
+}
+
+:global(html[data-home-visited="true"]) .frontFile,
+:global(html[data-home-visited="true"]) .stamp,
+:global(html[data-home-visited="true"]) .stamp > * {
+  animation: none;
+}

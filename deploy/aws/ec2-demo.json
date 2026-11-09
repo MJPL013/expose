@@ -1,0 +1,554 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Expose single-instance demo in Mumbai. Public HTTPS only, SSM administration, encrypted retained data volume and stable free IP-based hostname. Application installation is a separate deployment step.",
+  "Metadata": {
+    "AWSToolsMetrics": {
+      "AWSAgentToolkit": "aws-cloudformation@3"
+    },
+    "com.aws.cloudformation.Context": {
+      "ref": "docs/AWS_DEMO_DEPLOYMENT.md",
+      "why": "Small demo with one backend socket owner and local PostgreSQL.",
+      "must": [
+        "No secrets in this template or user data.",
+        "Do not launch before cost and runtime duration are agreed.",
+        "Retained data volume remains billable after stack deletion."
+      ]
+    }
+  },
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "t3.medium",
+      "AllowedValues": [
+        "t3.small",
+        "t3.medium"
+      ],
+      "Description": "medium recommended initially; small requires memory validation."
+    },
+    "ImageId": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+    },
+    "DataGiB": {
+      "Type": "Number",
+      "Default": 20,
+      "MinValue": 20,
+      "MaxValue": 100,
+      "Description": "Persistent PostgreSQL and media volume. Retained on deletion."
+    }
+  },
+  "Resources": {
+    "Vpc": {
+      "Type": "AWS::EC2::VPC",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Isolated demo networking.",
+          "must": [
+            "Do not attach unrelated workloads."
+          ]
+        }
+      },
+      "Properties": {
+        "CidrBlock": "10.77.0.0/16",
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-vpc"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "Gateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Internet path for HTTPS and provider APIs.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-internet"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "GatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Connect demo VPC to internet gateway.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "Gateway"
+        }
+      }
+    },
+    "Subnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "One subnet for a one-server demo.",
+          "must": [
+            "Keep PostgreSQL private on host."
+          ]
+        }
+      },
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "CidrBlock": "10.77.1.0/24",
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-subnet"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "RouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Dedicated public route table.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-routes"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "Route": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "GatewayAttachment",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Outbound access without a billed NAT gateway.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "Gateway"
+        }
+      }
+    },
+    "SubnetRoute": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Use the dedicated demo routes.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "SubnetId": {
+          "Ref": "Subnet"
+        },
+        "RouteTableId": {
+          "Ref": "RouteTable"
+        }
+      }
+    },
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Public HTTPS and certificate validation; administration through SSM.",
+          "must": [
+            "No SSH, PostgreSQL, Next, Fastify or proxy ingress.",
+            "Only the local HTTPS proxy may reach application ports."
+          ]
+        }
+      },
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Expose demo HTTP redirect and HTTPS ingress",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0",
+            "Description": "HTTP redirect and certificate validation"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "CidrIp": "0.0.0.0/0",
+            "Description": "HTTPS and secure WebSocket clients"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Package installation and external voice AI providers"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-https"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "Role": {
+      "Type": "AWS::IAM::Role",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Short-lived instance identity for SSM administration.",
+          "must": [
+            "Do not copy local AWS credentials to the instance.",
+            "Additional data permissions must be resource-scoped."
+          ]
+        }
+      },
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+          }
+        ]
+      }
+    },
+    "Profile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Attach the SSM role to this EC2 instance.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "Role"
+          }
+        ]
+      }
+    },
+    "Instance": {
+      "Type": "AWS::EC2::Instance",
+      "DependsOn": [
+        "Route",
+        "SubnetRoute"
+      ],
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "One app and database server; no scaling or failover.",
+          "must": [
+            "IMDSv2 required; native services, not containers.",
+            "CPU standard mode avoids surplus-credit billing but can throttle.",
+            "Database and media belong on DataVolume, not the root disk."
+          ]
+        }
+      },
+      "Properties": {
+        "ImageId": {
+          "Ref": "ImageId"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "IamInstanceProfile": {
+          "Ref": "Profile"
+        },
+        "NetworkInterfaces": [
+          {
+            "DeviceIndex": "0",
+            "SubnetId": {
+              "Ref": "Subnet"
+            },
+            "GroupSet": [
+              {
+                "Ref": "SecurityGroup"
+              }
+            ],
+            "AssociatePublicIpAddress": false
+          }
+        ],
+        "MetadataOptions": {
+          "HttpTokens": "required",
+          "HttpEndpoint": "enabled",
+          "HttpPutResponseHopLimit": 1
+        },
+        "CreditSpecification": {
+          "CPUCredits": "standard"
+        },
+        "Monitoring": false,
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+              "VolumeSize": 16,
+              "VolumeType": "gp3",
+              "Encrypted": true,
+              "DeleteOnTermination": true
+            }
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": "#!/bin/bash\nset -eu\nsystemctl enable --now amazon-ssm-agent\ninstall -d -m 0750 /opt/expose\n# Data volume mounting, app setup and provider configuration follow separately.\n"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-server"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "Address": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": "GatewayAttachment",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Stable IPv4 preserves the free hostname and guest cookie origin.",
+          "must": [
+            "Charged while allocated, including when EC2 is stopped."
+          ]
+        }
+      },
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-address"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "AddressAssociation": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Attach the stable address without an extra temporary public IP.",
+          "must": []
+        }
+      },
+      "Properties": {
+        "InstanceId": {
+          "Ref": "Instance"
+        },
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "Address",
+            "AllocationId"
+          ]
+        }
+      }
+    },
+    "DataVolume": {
+      "Type": "AWS::EC2::Volume",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Persistent database and audio separate from replaceable OS.",
+          "must": [
+            "Retain on stack deletion/replacement; deletion requires a separate decision.",
+            "Mount by volume identity/UUID, never assume an NVMe device number.",
+            "Back up database and audio together."
+          ]
+        }
+      },
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::GetAtt": [
+            "Instance",
+            "AvailabilityZone"
+          ]
+        },
+        "Size": {
+          "Ref": "DataGiB"
+        },
+        "VolumeType": "gp3",
+        "Encrypted": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-data"
+            }
+          },
+          {
+            "Key": "Project",
+            "Value": "Expose"
+          },
+          {
+            "Key": "Environment",
+            "Value": "demo"
+          }
+        ]
+      }
+    },
+    "DataAttachment": {
+      "Type": "AWS::EC2::VolumeAttachment",
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Attach retained data to the app server.",
+          "must": [
+            "Never format an already populated volume."
+          ]
+        }
+      },
+      "Properties": {
+        "Device": "/dev/sdf",
+        "InstanceId": {
+          "Ref": "Instance"
+        },
+        "VolumeId": {
+          "Ref": "DataVolume"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "InstanceId": {
+      "Value": {
+        "Ref": "Instance"
+      }
+    },
+    "PublicIp": {
+      "Value": {
+        "Ref": "Address"
+      }
+    },
+    "DataVolumeId": {
+      "Value": {
+        "Ref": "DataVolume"
+      }
+    },
+    "DemoHostname": {
+      "Value": {
+        "Fn::Sub": "expose.${Address}.sslip.io"
+      }
+    },
+    "DemoUrl": {
+      "Description": "Usable only after Caddy, application and certificate setup complete.",
+      "Value": {
+        "Fn::Sub": "https://expose.${Address}.sslip.io"
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "@expose/backend",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env src/main.ts",
+    "start": "tsx --env-file=.env src/main.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:migrate": "tsx --env-file=.env src/db/migrate.ts",
+    "contracts": "tsx src/contract-docs.ts",
+    "report": "tsx --env-file=.env src/report-cli.ts",
+    "probe": "tsx --env-file=.env src/probe.ts",
+    "operator": "tsx --env-file=.env src/operator.ts",
+    "void:seed": "tsx --env-file=.env gc2/seed.ts",
+    "void:operator": "tsx --env-file=.env gc2/operator.ts"
+  },
+  "dependencies": {
+    "@expose/shared": "*",
+    "@fastify/cookie": "^11.0.0",
+    "@fastify/rate-limit": "^10.0.0",
+    "@fastify/websocket": "^11.0.0",
+    "drizzle-orm": "^0.45.4",
+    "fastify": "^5.0.0",
+    "google-auth-library": "^11.3.3",
+    "pg": "^8.16.0",
+    "pg-boss": "^12.0.0",
+    "ws": "^8.18.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/ws": "^8.18.0",
+    "drizzle-kit": "^0.31.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^5.0.5"
+  }
+}

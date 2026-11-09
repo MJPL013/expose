@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "provenance": "synthetic",
+  "description": "Authored fictional conversations. No recordings or real people. These are product-development inputs, not verified population evidence.",
+  "profiles": [
+    {"key":"asha","name":"Asha","sessions":[
+      [
+        {"role":"assistant","text":"What has been taking up space in your head?"},
+        {"role":"user","text":"I tried organising a beach trip with four friends. I made the budget sheet, compared trains and asked everyone for dates. Two friends cancelled the day before the booking deadline. I felt more annoyed about being left to tell everyone than about the trip itself."},
+        {"role":"assistant","text":"You got the travel-agent job and the complaints desk. What happened when you told them?"},
+        {"role":"user","text":"I laughed about my spreadsheet becoming a museum exhibit. Then I told them I would organise only if someone else collected the money. I like a clear plan, but I don't want to be responsible for everyone's enthusiasm."},
+        {"role":"assistant","text":"That sounds like a useful boundary. Anything unrelated you have been enjoying?"},
+        {"role":"user","text":"I have been learning to bake bread. It is a nice thing I can do without coordinating anyone. I don't want everything I enjoy turned into evidence that I need control."}
+      ],
+      [
+        {"role":"assistant","text":"Anything you want to pick up from last time?"},
+        {"role":"user","text":"The cancelled beach trip actually happened this weekend. One friend collected the money, and I booked the train. Splitting the jobs made it fun again. On the last afternoon we abandoned the itinerary and wandered around. I enjoyed that more than the activities I had scheduled."},
+        {"role":"assistant","text":"The spreadsheet survived a day off. Did it change what you want to handle next time?"},
+        {"role":"user","text":"I still like getting the basics sorted. After that I am happy to improvise if the responsibility is shared. I wasn't trying to control my friends; I was worried that all the unfinished jobs would land on me."}
+      ]
+    ]},
+    {"key":"kabir","name":"Kabir","sessions":[
+      [
+        {"role":"assistant","text":"Tell me about something that recently went off script."},
+        {"role":"user","text":"A weekend trip with my friends fell apart when the train sold out. I had not answered the booking message because I wanted to decide on Friday. I suggested a local picnic instead. I was fine with changing plans, but the friend who researched everything was clearly upset."},
+        {"role":"assistant","text":"You had a backup adventure, but somebody else had already done the homework."},
+        {"role":"user","text":"Yes. I apologised for leaving the message unanswered. I still don't like scheduling every hour, but I can commit to dates and pay my share early. Being spontaneous should not mean somebody else waits for me."}
+      ],
+      [
+        {"role":"assistant","text":"What has changed since that weekend?"},
+        {"role":"user","text":"On a different hiking trip I booked my ticket a week early. I left the afternoon open. When it rained, we found a cafe and played cards. I enjoyed that change. This was a different group and a different trip from the cancelled train plan."},
+        {"role":"assistant","text":"A little commitment at the start bought you room to improvise later."},
+        {"role":"user","text":"Exactly. I am also learning guitar, very badly. I don't think that has anything to do with travel planning. Mostly I just like making noise after work."}
+      ]
+    ]},
+    {"key":"meera","name":"Meera","sessions":[
+      [
+        {"role":"assistant","text":"What story have you been meaning to tell someone?"},
+        {"role":"user","text":"I coordinated a small college exhibition. I made a checklist and ended up printing labels, calling volunteers and cleaning up. When someone missed their task, I quietly did it myself. The exhibition went well, but I was exhausted and resentful."},
+        {"role":"assistant","text":"You were apparently the committee, the printer and the cleaning crew."},
+        {"role":"user","text":"I joked about putting all three roles on my certificate. For the next event I asked each volunteer to own a complete task, and I stopped taking over immediately. I like being useful, but I want to actually enjoy the event too."}
+      ],
+      [
+        {"role":"assistant","text":"Did the next exhibition feel different?"},
+        {"role":"user","text":"It was the follow-up exhibition I mentioned earlier. One volunteer forgot the labels, but this time I asked them to fix it instead of doing it myself. It was awkward for a minute. Then they handled it and I spent time looking at the art."},
+        {"role":"assistant","text":"What did that leave you thinking?"},
+        {"role":"user","text":"I used to say I preferred doing everything alone. I don't think that is true. I prefer knowing who owns each job. On my own days off I like unplanned walks and sketching, which feels quite different from organising an event."}
+      ]
+    ]}
+  ]
+}
