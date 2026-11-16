@@ -2,10 +2,14 @@
 import { useState } from "react";
 import type { GameSnapshot } from "@expose/shared/game/contracts";
 import type { Pace } from "@expose/shared/game/guided";
-import type { HostLanguage } from "@expose/shared/game/host";
+import {
+  roomLanguageOptions,
+  type HostLanguage,
+} from "@expose/shared/game/host";
 import type { ScreenProps } from "./screens/shared";
 import { Button } from "../ui/primitives";
 import styles from "./entry.module.css";
+import { PacePicker, ChoiceCards } from "./room-setup";
 
 export function LobbySettings({
   snapshot,
@@ -36,19 +40,10 @@ export function LobbySettings({
         }}
       >
         <fieldset className={styles.fields} disabled={saving}>
-          <label>
-            Pace
-            <select
-              value={settings.pace}
-              onChange={(e) =>
-                setSettings({ ...settings, pace: e.target.value as Pace })
-              }
-            >
-              <option value="quick">Quick · 30 sec answers</option>
-              <option value="normal">Normal · 45 sec answers</option>
-              <option value="relaxed">Relaxed · 60 sec answers</option>
-            </select>
-          </label>
+          <PacePicker
+            value={settings.pace as Pace}
+            onChange={(pace) => setSettings({ ...settings, pace })}
+          />
           <label>
             Host and question language
             <select
@@ -60,27 +55,23 @@ export function LobbySettings({
                 })
               }
             >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी · Hindi</option>
-              <option value="hinglish">Hinglish</option>
+              {roomLanguageOptions.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
             </select>
           </label>
-          <label>
-            Spice level
-            <select
-              value={settings.spice}
-              onChange={(e) =>
-                setSettings({
-                  ...settings,
-                  spice: e.target.value as typeof settings.spice,
-                })
-              }
-            >
-              <option value="mild">Mild · warm teasing</option>
-              <option value="medium">Medium · sharp banter</option>
-              <option value="spicy">Spicy · adult party humour, 18+</option>
-            </select>
-          </label>
+          <ChoiceCards<GameSnapshot["setup"]["spice"]>
+            label="Spice"
+            value={settings.spice}
+            onChange={(spice) => setSettings({ ...settings, spice })}
+            options={[
+              { value: "mild", title: "Mild" },
+              { value: "medium", title: "Medium" },
+              { value: "spicy", title: "Spicy · 18+" },
+            ]}
+          />
           {settings.spice === "spicy" && (
             <label className={styles.check}>
               <input

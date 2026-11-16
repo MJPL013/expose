@@ -1,5 +1,5 @@
 /* Public app shell only. Never records requests containing session, profile, or audio data. */
-const CACHE = "gnani-public-shell-v18-accounts-void-graph";
+const CACHE = "gnani-public-shell-v21-rating-tuner";
 const PAGES = ["/", "/friends", "/demo", "/play", "/profile", "/profile/cards", "/settings"];
 const ASSETS = [
   "/brand/expose-logo.png",

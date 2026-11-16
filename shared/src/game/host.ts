@@ -1,6 +1,11 @@
 import { z } from "zod";
-export const HostLanguageSchema = z.enum(["en", "hi", "hinglish"]);
-export const SpeechLanguageSchema = z.enum(["en-IN", "hi-IN", "te-IN"]);
+export const HostLanguageSchema = z.enum(["en", "hi", "hinglish", "te", "ta"]);
+export const SpeechLanguageSchema = z.enum([
+  "en-IN",
+  "hi-IN",
+  "te-IN",
+  "ta-IN",
+]);
 export type HostLanguage = z.infer<typeof HostLanguageSchema>;
 export type SpeechLanguage = z.infer<typeof SpeechLanguageSchema>;
 export type HostStage = "act1" | "midgame" | "reply" | "closing";
@@ -64,7 +69,33 @@ export const languageNames = {
   en: "English",
   hi: "Hindi",
   hinglish: "Hinglish",
+  te: "Telugu",
+  ta: "Tamil",
 };
 export function speechMatchesRoom(speech: SpeechLanguage, room: HostLanguage) {
-  return room === "hi" ? speech === "hi-IN" : speech === "en-IN";
+  // Hinglish gameplay text is authored in Latin script; review transliteration too.
+  return room !== "hinglish" && speech === roomSpeechLanguage[room];
+}
+
+export const roomSpeechLanguage: Record<HostLanguage, SpeechLanguage> = {
+  en: "en-IN",
+  hi: "hi-IN",
+  hinglish: "hi-IN",
+  te: "te-IN",
+  ta: "ta-IN",
+};
+export const roomLanguageOptions = [
+  { value: "en", label: "English" },
+  { value: "hi", label: "हिन्दी · Hindi" },
+  { value: "hinglish", label: "Hinglish" },
+  { value: "te", label: "తెలుగు · Telugu" },
+  { value: "ta", label: "தமிழ் · Tamil" },
+] as const;
+export const speechLanguageOptions = roomLanguageOptions
+  .filter((l) => l.value !== "hinglish")
+  .map((l) => ({ value: roomSpeechLanguage[l.value], label: l.label }));
+export function ttsLanguage(language: HostLanguage, model: string) {
+  return language === "hinglish" && model !== "timbre-v3.0"
+    ? "hi-en"
+    : roomSpeechLanguage[language];
 }

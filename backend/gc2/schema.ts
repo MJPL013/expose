@@ -56,6 +56,7 @@ export const voidJobs = pgTable(
       .references(() => voidSessions.id, { onDelete: "cascade" }),
     kind: text().notNull(),
     turnId: text("turn_id"),
+    parentId: uuid("parent_id"),
     status: text().notNull().default("queued"),
     claimedAt: timestamp("claimed_at", { withTimezone: true }),
     completedAt: timestamp("completed_at", { withTimezone: true }),
@@ -68,3 +69,44 @@ export const voidJobs = pgTable(
   },
   (t) => [index("gc2_jobs_pending").on(t.status, t.createdAt)],
 );
+
+/** Admission records contain identifiers and outcomes, never prompts or audio. */
+export const voidProviderOperations = pgTable(
+  "gc2_provider_operations",
+  {
+    id: text().primaryKey(),
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => voidAccounts.id, { onDelete: "cascade" }),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => voidSessions.id, { onDelete: "cascade" }),
+    operationId: text("operation_id").notNull(),
+    parentId: text("parent_id"),
+    kind: text().notNull(),
+    resourceGroup: text("resource_group").notNull(),
+    provider: text().notNull(),
+    status: text().notNull(),
+    errorKind: text("error_kind"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("gc2_provider_capacity").on(t.resourceGroup, t.status, t.expiresAt),
+    index("gc2_provider_usage").on(t.accountId, t.kind, t.createdAt),
+    index("gc2_provider_session").on(t.sessionId, t.kind),
+  ],
+);
+export const voidProviderCircuits = pgTable("gc2_provider_circuits", {
+  provider: text().primaryKey(),
+  failures: integer().notNull().default(0),
+  openUntil: timestamp("open_until", { withTimezone: true }),
+});
+export const voidIngressLimits = pgTable("gc2_ingress_limits", {
+  key: text().primaryKey(),
+  count: integer().notNull(),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+});

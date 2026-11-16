@@ -1,0 +1,191 @@
+.tuner {
+  min-width: 0;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+.endpoints {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 14px;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.endpoints span:last-child {
+  text-align: right;
+}
+.endpoints [data-active="true"] {
+  color: var(--accent-text);
+}
+.dial {
+  position: relative;
+  height: 92px;
+  border: 1px solid var(--control-border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--elevated), var(--surface));
+  box-shadow: inset 0 2px 5px #0002;
+}
+.dial:has(input:focus-visible) {
+  outline: 3px solid var(--primary);
+  outline-offset: 4px;
+}
+.ruler {
+  position: absolute;
+  inset: 20px 22px 16px;
+  pointer-events: none;
+}
+.tick {
+  position: absolute;
+  top: 14px;
+  height: 9px;
+  width: 1px;
+  background: var(--control-border);
+  transform: translateX(-50%);
+}
+.tick[data-major="true"] {
+  top: 4px;
+  height: 19px;
+  background: var(--secondary);
+}
+.tick[data-centre="true"] {
+  width: 2px;
+}
+.tick b {
+  position: absolute;
+  top: 29px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.tick b[data-current="true"] {
+  color: var(--accent-text);
+  font-weight: 800;
+}
+.needle {
+  position: absolute;
+  top: -6px;
+  left: var(--position);
+  height: 34px;
+  width: 3px;
+  transform: translateX(-50%);
+  background: var(--accent-text);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.needle::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 6px;
+  background: var(--accent-text);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.dial[data-answered="false"] .needle {
+  background: var(--secondary);
+  box-shadow: none;
+  opacity: 0.55;
+}
+.dial[data-answered="false"] .needle::before {
+  background: var(--secondary);
+}
+.dial .input {
+  position: absolute;
+  inset: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+.input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 44px;
+}
+.input::-moz-range-thumb {
+  width: 44px;
+  height: 44px;
+  border: 0;
+}
+.readout {
+  display: block;
+  min-height: 1.5em;
+  text-align: center;
+  margin: 10px 0;
+  font-size: 0.8125rem;
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
+.tuner[data-answered="true"] .readout {
+  color: var(--accent-text);
+}
+.adjustments {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.adjustments button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 140ms,
+    border-color 140ms;
+}
+.adjustments .balance {
+  font-size: 0.8125rem;
+}
+.balance b {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+.balance[aria-pressed="true"] {
+  border-color: var(--accent-text);
+  background: var(--selected-surface);
+}
+.adjustments button:active:not(:disabled) {
+  background: var(--selected-surface);
+}
+.adjustments button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .adjustments button {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .tick,
+  .needle,
+  .needle::before {
+    background: CanvasText;
+    forced-color-adjust: none;
+    box-shadow: none;
+  }
+}

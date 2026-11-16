@@ -1,5 +1,15 @@
 # Frontend connections and browser data
 
+## Centre-zero ratings — 16 November 2026, B079
+
+`features/rating-tuner.tsx` renders the shared self/friend rating control as an analogue 5–0–5 dial. A native signed range supplies keyboard/touch behavior while callbacks and phase drafts keep canonical 0–10 values. `aria-valuetext` names both strength and endpoint; untouched values stay null, including across refresh. Separate direction buttons and **0 · Balanced** provide alternatives to dragging. Theme tokens, 44-pixel buttons, a 92-pixel input surface and reduced-motion behavior preserve accessibility. Squad SVGs use explicit saddle/cabin coordinates. PWA shell 21 replaces 20; wire protocols are unchanged. See [behavior and evidence](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079).
+
+## Game 1 room setup — 16 November 2026, B078
+
+Creation/join/invitation use the saved Profile. A Profile detour stores choices/code in sessionStorage and restores a validated local destination. Room controls now use native radio cards, a scroll-snapping timer rail and a six-vehicle squad picker with 2–7 characters, with a persistent submit action. New normal rooms are remote; existing same-room and demo flows remain compatible. Telugu/Tamil room options and Tamil microphone input use central labels and locally served fonts. PWA shell 20 serves protocol 7. See [behavior and acceptance](ROOM_SETUP.md).
+
+**15 November 2026 — B077:** The Void keeps the eclipse design and shows verified preparation/listening/capture/transcription/reply states, optional What I heard, and recovery actions. Its explorer defaults to response similarity and displays approved metadata and person-pair evidence. PWA shell 19 refreshes GC2 protocol 3 clients while excluding private data. See [behavior and evidence](VOID_RELIABILITY.md).
+
 ## Guest Void entry — 9 November 2026, B071
 
 The signed-out landing defaults to **Continue as guest**, followed by mic preparation or the existing typing alternative. The first-entry disclosure explains retained server data and browser-only access recovery. The guest endpoint accepts that consent and returns a typed guest identity; no Google redirect or extra signup form occurs. Returning guests see Enter The Void, a browser-profile label and private history. An optional Google button appears only when configured. Browser Web Locks serialize guest bootstrap between tabs where available; cookies persist the profile after refresh. Settings → Leave guest profile opens a confirmation explaining loss of access, then revokes the guest token and releases voice. Shared Google sign-out remains separate. No microphone, transcript, provider or scoring logic changed. The admin explorer's denied state links to The Void without granting guest admin access.

@@ -1,3 +1,4 @@
+import { StoryMetadataSchema } from "@expose/shared/gc2-graph";
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import type { FastifyInstance } from "fastify";
@@ -17,6 +18,7 @@ import { VoidService } from "./service";
 
 type Capture = {
   id: string;
+  settle: (error?: unknown) => Promise<void>;
   speech: SpeechStream;
   frames: Buffer[];
   bytes: number;
@@ -33,6 +35,9 @@ type Connection = {
   id: string;
   accountId: string;
   sessionId?: string;
+  operationId?: string;
+  operationStarted?: number;
+  speechEnded?: number;
   socket: WebSocket;
   capture?: Capture;
   token: string;
@@ -49,11 +54,40 @@ export function registerVoid(
   const connections = new Map<string, Connection>();
   const send = (c: Connection, message: VoidServerMessage) => {
     if (c.socket.readyState === 1) c.socket.send(JSON.stringify(message));
+    if (message.type === "capture.progress")
+      app.log.info(
+        {
+          event: "void.voice",
+          operationId: message.id,
+          stage: message.stage,
+          elapsedMs:
+            c.operationStarted === undefined
+              ? undefined
+              : Math.round(performance.now() - c.operationStarted),
+          finalisationMs:
+            message.stage === "accepted" && c.speechEnded !== undefined
+              ? Math.round(performance.now() - c.speechEnded)
+              : undefined,
+        },
+        "Void voice stage",
+      );
+    if (message.type === "error")
+      app.log.warn(
+        {
+          event: "void.error",
+          operationId: message.operationId,
+          code: message.code,
+        },
+        "Void operation failed",
+      );
   };
   const report = (c: Connection, error: unknown) =>
     send(c, {
       type: "error",
       code: error instanceof AppError ? error.code : "VOID_FAILED",
+      operationId: c.capture?.id ?? c.operationId,
+      retryAfterSeconds:
+        error instanceof AppError ? error.retryAfterSeconds : undefined,
       message:
         error instanceof AppError
           ? error.message
@@ -66,6 +100,9 @@ export function registerVoid(
     clearTimeout(capture.timer);
     clearInterval(capture.pump);
     capture.speech.cancel();
+    await capture.settle(
+      new AppError("VOID_CANCELLED", "Recording cancelled.", 409),
+    );
     capture.frames = [];
     capture.sendQueue = [];
     if (c.sessionId)
@@ -101,7 +138,7 @@ export function registerVoid(
   };
   auth.register(app);
   app.get("/api/gc2/v2/me", async (req) => ({
-    protocol: 2,
+    protocol: 3,
     account: await auth.identity(req),
     configured: auth.configured,
     guestAvailable: auth.guestAvailable,
@@ -203,6 +240,7 @@ export function registerVoid(
                 title: z.string().max(100),
                 experience: z.string().max(350),
                 response: z.string().max(350),
+                metadata: StoryMetadataSchema.nullable().optional(),
               }),
             )
             .max(40)
@@ -270,7 +308,7 @@ export function registerVoid(
   });
   // Old read-only routes preserve access to saved history; mutations use the v2 contract.
   app.get("/api/gc2/me", async (req) => ({
-    protocol: 2,
+    protocol: 3,
     account: await auth.identity(req),
     configured: auth.configured,
     guestAvailable: auth.guestAvailable,
@@ -281,8 +319,22 @@ export function registerVoid(
   app.get("/api/gc2/history", async (req) => ({
     sessions: await service.history((await auth.require(req)).id),
   }));
+  app.get("/api/gc2/v2/socket", { websocket: true }, (socket) => {
+    // V2 clients check the version before reading the snapshot. Trigger their
+    // existing refresh path, instead of letting onclose overwrite the notice.
+    socket.send(JSON.stringify({ type: "state", view: { protocol: 3 } }));
+    socket.send(
+      JSON.stringify({
+        type: "error",
+        code: "VOID_PROTOCOL",
+        message:
+          "The Void has updated. Refresh to continue; your saved turns are safe.",
+      }),
+    );
+    socket.close(4006, "Refresh required");
+  });
   app.get(
-    "/api/gc2/v2/socket",
+    "/api/gc2/v3/socket",
     {
       websocket: true,
       preValidation: async (req) => {
@@ -318,6 +370,7 @@ export function registerVoid(
         const capture = c.capture;
         if (!capture || capture.ending) return;
         capture.ending = true;
+        c.speechEnded = performance.now();
         clearTimeout(capture.timer);
         try {
           await service.change(
@@ -334,6 +387,11 @@ export function registerVoid(
             c.accountId,
             c.id,
           );
+          send(c, {
+            type: "capture.progress",
+            id: capture.id,
+            stage: "transcribing",
+          });
           const drainDeadline = performance.now() + 2400;
           while (
             capture.sendQueue.length &&
@@ -380,8 +438,22 @@ export function registerVoid(
             capture.language,
             capped || capture.capped,
           );
+          await capture.settle();
+          send(c, {
+            type: "capture.progress",
+            id: capture.id,
+            stage: "accepted",
+            text: result.text.slice(0, 4000),
+          });
+          if (!capped && !capture.capped && result.text.trim())
+            send(c, {
+              type: "capture.progress",
+              id: capture.id,
+              stage: "replying",
+            });
           if (c.capture === capture) c.capture = undefined;
         } catch (error) {
+          await capture.settle(error);
           if (c.capture !== capture || c.closed) return;
           if (capture.bytes > 0) {
             await service
@@ -437,6 +509,12 @@ export function registerVoid(
             void finish(c, true).catch((e) => report(c, e));
             return;
           }
+          if (!cap.bytes)
+            send(c, {
+              type: "capture.progress",
+              id: cap.id,
+              stage: "audio-received",
+            });
           cap.bytes += frame.length;
           cap.frames.push(frame);
           cap.sendQueue.push(frame);
@@ -446,6 +524,11 @@ export function registerVoid(
           .then(async () => {
             const c = await initialized;
             if (c.closed) return;
+            await service.ai.admission.ingress(
+              `control:${c.accountId}`,
+              120,
+              60,
+            );
             const m = VoidMessage.parse(JSON.parse(data.toString()));
             if (Date.now() - c.window > 60000) {
               c.window = Date.now();
@@ -484,6 +567,9 @@ export function registerVoid(
                 c.id,
               );
               c.sessionId = m.sessionId;
+              c.operationId = undefined;
+              c.operationStarted = undefined;
+              c.speechEnded = undefined;
               send(c, { type: "state", view: snapshot, reason: "claimed" });
               return;
             }
@@ -511,6 +597,9 @@ export function registerVoid(
                 "Finish the current recording first.",
                 409,
               );
+              c.operationId = m.id;
+              c.operationStarted = performance.now();
+              c.speechEnded = undefined;
               await service.captureStart(
                 c.sessionId,
                 c.accountId,
@@ -519,9 +608,34 @@ export function registerVoid(
                 m.revision,
               );
               let speech: SpeechStream;
+              let settle: (error?: unknown) => Promise<void> = async () => {};
               try {
-                speech = service.providers.stt([], () => {}, m.language);
-              } catch {
+                settle = await service.ai.admission.acquire(
+                  {
+                    accountId: c.accountId,
+                    sessionId: c.sessionId,
+                    operationId: m.id,
+                  },
+                  "stt",
+                  "gnani:stt",
+                  `${m.id}:stt:0`,
+                );
+                speech = service.providers.stt(
+                  [],
+                  (segment) => {
+                    if (!c.closed && c.capture?.id === m.id)
+                      send(c, {
+                        type: "capture.progress",
+                        id: m.id,
+                        stage: "transcribing",
+                        text: segment.text,
+                        segmentId: segment.id,
+                      });
+                  },
+                  m.language,
+                );
+              } catch (error) {
+                await settle(error);
                 await service.captureCancel(
                   c.sessionId,
                   c.accountId,
@@ -529,6 +643,7 @@ export function registerVoid(
                   m.id,
                   0,
                 );
+                if (error instanceof AppError) throw error;
                 throw new AppError(
                   "VOID_STT_UNAVAILABLE",
                   "Speech recognition couldn't connect. Try again or type.",
@@ -546,6 +661,7 @@ export function registerVoid(
                   : 64000;
               const cap: Capture = {
                 id: m.id,
+                settle,
                 speech,
                 frames: [],
                 sendQueue: [],
@@ -573,7 +689,8 @@ export function registerVoid(
                 if (frame)
                   try {
                     cap.speech.push(frame);
-                  } catch {
+                  } catch (error) {
+                    void settle(error);
                     void cancel(c);
                     report(
                       c,
@@ -592,7 +709,8 @@ export function registerVoid(
                   if (c.capture === cap && !c.closed)
                     send(c, { type: "capture.ready", id: m.id });
                 })
-                .catch(async () => {
+                .catch(async (error) => {
+                  await settle(error);
                   if (c.capture !== cap) return;
                   await cancel(c);
                   report(

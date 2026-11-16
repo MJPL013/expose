@@ -534,7 +534,7 @@ const adult: Creative[] = [
   ],
 ];
 
-export function freshContent(
+export function legacyFreshContent(
   base: ContentSnapshot,
   setup: Setup,
   seed: string,
@@ -737,3 +737,5 @@ export function freshContent(
   };
   return s;
 }
+
+export { catalogContent as freshContent } from "./catalog";

@@ -64,13 +64,14 @@ export const voidContract = {
       "Owner-only AI audio; player recordings cannot be fetched here",
   },
   socket: {
-    path: "/api/gc2/v2/socket",
+    path: "/api/gc2/v3/socket",
     client: z.toJSONSchema(VoidMessage),
     serverEvents: [
       "state",
       "capture.accepted",
       "capture.ready",
       "capture.cap",
+      "capture.progress",
       "error",
       "ownership.lost",
       "heartbeat",
@@ -84,7 +85,7 @@ export const voidContract = {
       bufferSeconds: 2,
     },
     state:
-      "VoidView in shared/src/gc2.ts: caption/audio metadata, reflection, persona, status, revision and remaining allowance. No raw transcript or recording URL.",
+      "VoidView in shared/src/gc2.ts: caption/audio metadata, reflection, persona, status, revision and remaining allowance. Includes the latest private accepted transcript for optional review; no player recording URL.",
   },
   limits: {
     ...VOID_LIMITS,
@@ -95,6 +96,10 @@ export const voidContract = {
     analysisDeadlineMs: 120000,
     activeSeconds: 1800,
     graphAttempts: 8,
+    turnsPerMinute: 12,
+    concurrency: { stt: 4, live: 4, tts: 4, analysis: 1, embedding: 2 },
+    schemaVersion: 2,
+    embeddingTextVersion: 2,
     ttsDeadlineMs: 8000,
   },
 };

@@ -2,6 +2,7 @@
 import { uiCopy } from "../../content/ui.en";
 import { pack } from "@expose/shared/game/content";
 import { ActionDock } from "../../ui/action-dock";
+import { RatingTuner } from "../rating-tuner";
 
 import { usePhaseDraft } from "../../session/phase-draft";
 import { ArrowRight, Check } from "lucide-react";
@@ -39,7 +40,7 @@ export function Traits(props: ScreenProps) {
     <>
       <Heading
         eyebrow="GET TO KNOW THE SQUAD"
-        description="Choose a rating for each trait."
+        description="0 is balanced. Move toward the side that fits; 5 is strongest."
       >
         You → Your friend
       </Heading>
@@ -71,75 +72,19 @@ export function Traits(props: ScreenProps) {
       </div>
       <div className={styles.traitList}>
         {phase.traits.map((t, i) => (
-          <div key={t.id} className={styles.trait}>
-            <span>
-              <b>{t.left}</b>
-              <b>{t.right}</b>
-            </span>
-            <input
-              type="range"
-              min="0"
-              max="10"
-              step="1"
-              aria-label={`${tab === "self" ? "Your" : target.name + "’s"} ${t.id} rating`}
-              value={values[i] ?? 5}
-              aria-valuetext={
-                values[i] == null
-                  ? "Unanswered; choose a value"
-                  : String(values[i])
-              }
-              onChange={(e) => {
-                const next = [...values];
-                next[i] = Number(e.target.value);
-                if (tab === "self") setSelf(next);
-                else setFriend(next);
-              }}
-            />
-            <span>
-              <small>0</small>
-              <output>
-                {values[i] == null ? "Choose a rating" : `${values[i]} / 10`}
-              </output>
-              <small>10</small>
-            </span>
-            <div className={styles.ratingAlternatives}>
-              <button
-                type="button"
-                aria-label={`Lower ${t.id} rating`}
-                onClick={() => {
-                  const next = [...values];
-                  next[i] = Math.max(0, (next[i] ?? 5) - 1);
-                  if (tab === "self") setSelf(next);
-                  else setFriend(next);
-                }}
-              >
-                −
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = [...values];
-                  next[i] = 5;
-                  if (tab === "self") setSelf(next);
-                  else setFriend(next);
-                }}
-              >
-                5
-              </button>
-              <button
-                type="button"
-                aria-label={`Raise ${t.id} rating`}
-                onClick={() => {
-                  const next = [...values];
-                  next[i] = Math.min(10, (next[i] ?? 5) + 1);
-                  if (tab === "self") setSelf(next);
-                  else setFriend(next);
-                }}
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <RatingTuner
+            key={`${tab}:${t.id}`}
+            label={`${tab === "self" ? "Your" : target.name + "’s"} ${t.id} rating`}
+            left={t.left}
+            right={t.right}
+            value={values[i] ?? null}
+            onChange={(value) => {
+              const next = [...values];
+              next[i] = value;
+              if (tab === "self") setSelf(next);
+              else setFriend(next);
+            }}
+          />
         ))}
       </div>
       <ActionDock>

@@ -9,6 +9,7 @@ import { accounts, accountLogins } from "../src/accounts/schema";
 import type { Config } from "../src/config";
 import type { Database } from "../src/db/client";
 import { ensure } from "../src/errors";
+import { ProviderAdmission } from "./admission";
 
 export { hash } from "../src/accounts/auth";
 const guestCookie = "expose_void_guest";
@@ -115,6 +116,11 @@ export class VoidAuth {
         },
       },
       async (req, reply) => {
+        await new ProviderAdmission(this.db, this.config).ingress(
+          `guest-ip:${hash(req.ip)}`,
+          12,
+          3600,
+        );
         ensure(
           this.guestAvailable,
           "VOID_GUEST_DISABLED",

@@ -228,7 +228,7 @@ export const LobbyMessageSchema = z
 export type LobbyMessage = z.infer<typeof LobbyMessageSchema>;
 export type GameSnapshot = {
   lobbyChat?: LobbyMessage[];
-  protocol_version: 2 | 3 | 4 | 5 | 6;
+  protocol_version: 2 | 3 | 4 | 5 | 6 | 7;
   narration?: Narration;
   narrationFresh?: boolean;
   inviteUrl?: string;

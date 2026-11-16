@@ -105,7 +105,11 @@ export function Eclipse({
           else ctx.lineTo(x, y);
         }
         ctx.closePath();
-        const rotation = t * (mode === "thinking" ? 0.55 : 0.12);
+        const rotation =
+          t *
+          (["thinking", "transcribing", "preparing"].includes(mode)
+            ? 0.55
+            : 0.12);
         const gradient = ctx.createConicGradient(rotation, cx, cy);
         gradient.addColorStop(0, "rgba(255,207,126,.9)");
         gradient.addColorStop(0.15, "rgba(207,114,19,.38)");

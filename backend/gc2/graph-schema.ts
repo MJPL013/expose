@@ -12,7 +12,12 @@ import {
 } from "drizzle-orm/pg-core";
 import { accounts } from "../src/accounts/schema";
 import { voidSessions } from "./schema";
-import type { GraphView, StoryAnalysisSchema } from "@expose/shared/gc2-graph";
+import type {
+  GraphView,
+  StoryAnalysisSchema,
+  StoryMetadata,
+  ComparisonSummary,
+} from "@expose/shared/gc2-graph";
 import type { z } from "zod";
 export const transcriptTurns = pgTable(
   "gc2_transcript_turns",
@@ -39,6 +44,7 @@ export const analysisRuns = pgTable("gc2_analysis_runs", {
     .notNull()
     .references(() => voidSessions.id, { onDelete: "cascade" }),
   version: integer().notNull(),
+  schemaVersion: integer("schema_version").notNull().default(1),
   inputHash: text("input_hash").notNull(),
   status: text().notNull(),
   model: text().notNull(),
@@ -60,11 +66,7 @@ export const comparisonSummaries = pgTable("gc2_comparison_summaries", {
     .references(() => analysisRuns.id, { onDelete: "cascade" }),
   revision: integer().notNull().default(1),
   approved: boolean().notNull().default(false),
-  items: jsonb()
-    .$type<
-      { key: string; title: string; experience: string; response: string }[]
-    >()
-    .notNull(),
+  items: jsonb().$type<ComparisonSummary["items"]>().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -92,6 +94,8 @@ export const graphNodes = pgTable(
     summary: text().notNull(),
     experience: text().notNull(),
     response: text().notNull(),
+    metadata: jsonb().$type<StoryMetadata>(),
+    metadataVersion: integer("metadata_version").notNull().default(1),
     source: text().notNull(),
     turnIds: jsonb("turn_ids").$type<string[]>().notNull(),
   },
@@ -107,6 +111,7 @@ export const graphEdges = pgTable("gc2_graph_edges", {
     .references(() => graphNodes.id, { onDelete: "cascade" }),
   kind: text().notNull(),
   reason: text().notNull(),
+  similarity: real(),
   inferred: boolean().notNull().default(true),
 });
 export const graphEmbeddings = pgTable(

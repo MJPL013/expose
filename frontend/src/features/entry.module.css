@@ -3,10 +3,14 @@
   gap: 14px;
 }
 .form {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: grid;
   gap: 16px;
 }
 .fields {
+  grid-template-columns: minmax(0, 1fr);
   border: 0;
   padding: 0;
   margin: 0;
@@ -59,4 +63,247 @@
 .formError {
   color: var(--error-text);
 }
-.settings { border: 1px solid var(--border); border-radius: 16px; padding: 12px 16px; margin-block: 16px; } .settings summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.settings {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-block: 16px;
+}
+.settings summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.setupDialog.setupDialog {
+  width: min(640px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+}
+.setupDialog > div:last-child {
+  grid-template-columns: minmax(0, 1fr);
+}
+.fields > * {
+  min-width: 0;
+}
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.identity > div {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+.identity small {
+  margin: 0;
+}
+.identity button {
+  min-height: 44px;
+  background: none;
+  border: 0;
+  color: var(--accent-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.optionGroup {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.optionGroup legend {
+  font-weight: 700;
+  padding: 0 0 10px;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.choice {
+  position: relative;
+  flex: 1 1 130px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 7px;
+  cursor: pointer;
+  min-height: 60px;
+  transition:
+    background 0.18s,
+    border-color 0.18s;
+}
+.choice > strong {
+  font-size: 1rem;
+}
+.choice > span {
+  color: var(--secondary);
+  font-weight: 400;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.choice[data-selected="true"],
+.seats label[data-selected="true"] {
+  border-color: var(--accent-text);
+  background: color-mix(in srgb, var(--accent-text) 12%, var(--surface));
+}
+.choice input,
+.seats input {
+  position: absolute;
+  opacity: 0;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+}
+.choice:focus-within,
+.seats label:focus-within {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 3px;
+}
+.timerRail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 4px;
+  scroll-padding-inline: 4px;
+}
+.timerRail .choice {
+  flex: 1 0 115px;
+  scroll-snap-align: center;
+  text-align: center;
+}
+.timerRail strong {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+}
+.timingDetail {
+  padding: 4px;
+}
+.preview {
+  border-inline-start: 2px solid var(--accent-text);
+  padding: 4px 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+.preview span {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-bottom: 7px;
+}
+.squad {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.squadHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.squadHeading h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.squadHeading span {
+  font-size: 0.8rem;
+  color: var(--secondary);
+}
+.vehicle {
+  width: 100%;
+  height: auto;
+  max-height: 210px;
+  color: var(--text);
+  animation: arrive 0.22s ease-out;
+}
+.seats {
+  min-inline-size: 0;
+  max-width: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(44px, 1fr));
+  overflow-x: auto;
+  gap: 4px;
+  padding: 4px;
+}
+.seats label {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.squad p {
+  text-align: center;
+  display: grid;
+  gap: 6px;
+  margin: 16px 0 0;
+}
+.squad p span {
+  font-size: 0.75rem;
+}
+.createDock {
+  position: sticky;
+  bottom: -26px;
+  background: var(--surface);
+  padding: 14px 0 calc(10px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+  z-index: 2;
+}
+.createDock > button {
+  width: 100%;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@keyframes arrive {
+  from {
+    opacity: 0.3;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 600px) {
+  .setupDialog.setupDialog {
+    width: calc(100vw - 12px);
+    max-width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+    padding: 20px 16px;
+    margin: auto auto 0;
+  }
+  .createDock {
+    bottom: -20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vehicle {
+    animation: none;
+  }
+  .choice {
+    transition: none;
+  }
+}

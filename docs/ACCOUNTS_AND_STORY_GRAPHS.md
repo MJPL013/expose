@@ -1,5 +1,7 @@
 # Shared accounts and story graphs
 
+**15 November 2026 — B077 revision:** [Void reliability and evidence-based matching](VOID_RELIABILITY.md) supersedes the earlier protocol, shallow metadata, keyword recall and admission descriptions below. Guest/account ownership and explicit comparison approval remain unchanged. New metadata and versioned vectors require explicit reprocessing of old sessions.
+
 Implemented on `v2`, 9 November 2026, **B069**, revising B064/B065. This is the current account and Void specification. Earlier dated documents remain historical evidence.
 
 ## Browser guests — 9 November 2026, B071

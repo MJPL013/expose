@@ -1,11 +1,12 @@
+import { providerScope } from "./admission";
 import { VoidAi } from "./ai";
 import { StoryGraph, invalidateGraph } from "./story-graph";
-import { transcriptTurns, analysisRuns } from "./graph-schema";
+import { transcriptTurns, analysisRuns, graphNodes } from "./graph-schema";
 import { companionPrompt } from "./story-prompts";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { and, eq, isNull, desc, sql, ne } from "drizzle-orm";
+import { and, eq, isNull, desc, sql, ne, inArray } from "drizzle-orm";
 import { z } from "zod";
 import {
   AnalysisSchema,
@@ -56,7 +57,7 @@ export class VoidService {
     readonly providers: Providers,
   ) {
     this.storage = new PrivateFilesystem(path.resolve(config.GC2_MEDIA_ROOT));
-    this.ai = new VoidAi(config, providers);
+    this.ai = new VoidAi(config, providers, db);
     this.graph = new StoryGraph(this);
   }
   get available() {
@@ -256,11 +257,30 @@ export class VoidService {
     stopClock(s);
     s.finishedAt ??= new Date().toISOString();
     s.status = "processing";
+    const retryOf = s.processing === "failed" ? s.workId : undefined;
     s.processing = "queued";
     delete s.error;
     delete s.capture;
     s.used.analysis++;
-    s.workId = await this.enqueue(tx, r.id, "batch");
+    s.workId = await this.enqueue(tx, r.id, "batch", undefined, retryOf);
+  }
+  async reprocess(id: string, accountId: string) {
+    await this.change(
+      id,
+      async (s, r, tx) => {
+        ensure(
+          s.version === 2 &&
+            !!s.finishedAt &&
+            ["complete", "error"].includes(s.status),
+          "VOID_NOT_READY",
+          "Finish processing before requesting a new interpretation.",
+          409,
+        );
+        await invalidateGraph(tx, id);
+        await this.finishBatch(s, r, tx);
+      },
+      accountId,
+    );
   }
   async retryAnalysis(id: string, accountId: string) {
     await this.change(
@@ -349,16 +369,22 @@ export class VoidService {
           409,
         );
         s.graphStatus = "queued";
-        await this.enqueue(tx, id, failed[0].kind);
+        await this.enqueue(tx, id, failed[0].kind, undefined, failed[0].id);
       },
       accountId,
     );
   }
-  async enqueue(tx: Transaction, id: string, kind: string, turnId?: string) {
+  async enqueue(
+    tx: Transaction,
+    id: string,
+    kind: string,
+    turnId?: string,
+    parentId?: string,
+  ) {
     const jobId = randomUUID();
     await tx
       .insert(voidJobs)
-      .values({ id: jobId, sessionId: id, kind, turnId });
+      .values({ id: jobId, sessionId: id, kind, turnId, parentId });
     return jobId;
   }
   async create(accountId: string, language: VoidLanguage) {
@@ -530,63 +556,75 @@ export class VoidService {
       id,
       async (s, r, tx) => {
         if (!this.check(s, r, operation, revision)) return;
-        ensure(
-          s.status !== "complete" &&
-            !s.finishedAt &&
-            s.turns.length < limitsFor(s).turns,
-          "VOID_FINISHED",
-          "This conversation is ready to wrap up.",
-          409,
-        );
-        const answer =
-          text?.trim() ||
-          s.pending
-            .map((p) => p.text)
-            .join(" ")
-            .trim();
-        ensure(
-          answer && answer.length <= 4000,
-          "VOID_EMPTY",
-          "I didn't catch that. Please try again or type.",
-          400,
-        );
-        const sources = [...new Set(s.captions.at(-1)?.sources ?? [])];
-        const t: Turn = {
-          id: operation,
-          original: s.pending.length
-            ? s.pending.map((p) => p.text).join(" ")
-            : answer,
-          text: answer,
-          language: s.pending[0]?.language ?? s.language,
-          audioIds: s.pending.map((p) => p.audioId),
-          sources,
-          at: new Date().toISOString(),
-        };
-        s.turns.push(t);
-        s.pending = [];
-        delete s.error;
-        delete s.reflection;
-        s.status = "thinking";
-        if (s.version === 2) {
-          if (
-            activeMilliseconds(s) >= (s.activeLimitMs ?? 1800000) ||
-            s.used.host >= limitsFor(s).hostCalls ||
-            s.turns.length >= limitsFor(s).turns
-          ) {
-            await this.finishBatch(s, r, tx);
-            return;
-          }
-          s.workId = await this.enqueue(tx, id, "host", t.id);
-          return;
-        }
-        await this.enqueue(tx, id, "analysis", t.id);
-        const kind = shouldWrap(s) ? "reveal" : "host";
-        s.status = kind === "reveal" ? "revealing" : "thinking";
-        s.workId = await this.enqueue(tx, id, kind, t.id);
+        await this.acceptAnswer(s, r, tx, operation, text);
       },
       accountId,
       owner,
     );
+  }
+  private async acceptAnswer(
+    s: SessionState,
+    r: Row,
+    tx: Transaction,
+    operation: string,
+    text?: string,
+  ) {
+    const id = r.id;
+    ensure(
+      s.status !== "complete" &&
+        !s.finishedAt &&
+        s.turns.length < limitsFor(s).turns,
+      "VOID_FINISHED",
+      "This conversation is ready to wrap up.",
+      409,
+    );
+    const answer =
+      text?.trim() ||
+      s.pending
+        .map((p) => p.text)
+        .join(" ")
+        .trim();
+    ensure(
+      answer && answer.length <= 4000,
+      "VOID_EMPTY",
+      "I didn't catch that. Please try again or type.",
+      400,
+    );
+    const sources = [...new Set(s.captions.at(-1)?.sources ?? [])];
+    const t: Turn = {
+      id: operation,
+      original: s.pending.length
+        ? s.pending.map((p) => p.text).join(" ")
+        : answer,
+      text: answer,
+      language: s.pending[0]?.language ?? s.language,
+      audioIds: s.pending.map((p) => p.audioId),
+      sources,
+      at: new Date().toISOString(),
+    };
+    s.turns.push(t);
+    s.pending = [];
+    delete s.error;
+    delete s.reflection;
+    s.status = "thinking";
+    if (s.version === 2) {
+      if (
+        activeMilliseconds(s) >= (s.activeLimitMs ?? 1800000) ||
+        s.used.host >= limitsFor(s).hostCalls ||
+        s.turns.length >= limitsFor(s).turns
+      ) {
+        await this.finishBatch(s, r, tx);
+        return;
+      }
+      s.workId = await this.enqueue(tx, id, "host", t.id);
+      if ((s.turns.length - 1) % 3 === 0)
+        await this.enqueue(tx, id, "recall", t.id);
+      return;
+    }
+    await this.enqueue(tx, id, "analysis", t.id);
+    const kind = shouldWrap(s) ? "reveal" : "host";
+    s.status = kind === "reveal" ? "revealing" : "thinking";
+    s.workId = await this.enqueue(tx, id, kind, t.id);
   }
   async action(
     id: string,
@@ -600,6 +638,13 @@ export class VoidService {
       id,
       async (s, r, tx) => {
         if (!this.check(s, r, operation, revision)) return;
+        if (action === "retry")
+          ensure(
+            s.status === "error" && s.failedKind,
+            "VOID_NOT_RETRYABLE",
+            "There is no failed reply to retry.",
+            409,
+          );
         ensure(
           s.status !== "complete",
           "VOID_FINISHED",
@@ -638,6 +683,7 @@ export class VoidService {
             id,
             "host",
             action === "skip" ? "skip" : s.turns.at(-1)?.id,
+            action === "retry" ? s.workId : undefined,
           );
           return;
         }
@@ -675,6 +721,7 @@ export class VoidService {
           id,
           kind,
           action === "skip" ? "skip" : s.turns.at(-1)?.id,
+          action === "retry" ? s.workId : undefined,
         );
       },
       accountId,
@@ -771,6 +818,7 @@ export class VoidService {
         s.operations.push(captureId);
         s.used.speech += 60; // Reserve full ceiling; unused time is refunded on a known completion.
         s.capture = { id: captureId, owner, startedAt: Date.now() };
+        delete s.error;
         s.status = "capturing";
       },
       accountId,
@@ -810,11 +858,10 @@ export class VoidService {
     const key = `${randomUUID()}.bin`,
       assetId = randomUUID();
     await this.storage.put(key, audio);
-    let result: Row;
     try {
-      result = await this.change(
+      await this.change(
         id,
-        async (s, _r, tx) => {
+        async (s, r, tx) => {
           ensure(
             s.capture?.id === captureId,
             "VOID_STALE",
@@ -852,6 +899,7 @@ export class VoidService {
           s.used.speech -= Math.max(0, 60 - seconds);
           delete s.capture;
           s.status = "review";
+          if (!capped) await this.acceptAnswer(s, r, tx, captureId);
         },
         accountId,
         owner,
@@ -860,10 +908,83 @@ export class VoidService {
       await this.storage.delete(key);
       throw error;
     }
-    if (!capped && text.trim())
-      await this.respond(id, accountId, owner, randomUUID(), result!.revision);
+  }
+  private async refreshMemories(job: Job, row: Row) {
+    const index = row.state.turns.findIndex(
+      (t) => t.id === job.turnId && !t.invalidated,
+    );
+    if (index < 0 || row.state.finishedAt) return;
+    const query = row.state.turns
+      .slice(Math.max(0, index - 1), index + 1)
+      .map((t) => t.correction || t.text)
+      .join(" ")
+      .slice(0, 2000);
+    const vector = await this.ai.embed(query, true);
+    const ids: string[] = [];
+    for (const view of ["response", "experience"] as const) {
+      const matches = await this.graph.vectors.nearest(
+        vector,
+        {
+          scope: "private",
+          provenance: row.state.provenance ?? "real",
+          accountId: row.accountId,
+          excludeSessionId: row.id,
+          model: this.config.GC2_EMBEDDING_MODEL,
+          version: 2,
+          view,
+        },
+        8,
+      );
+      ids.push(
+        ...matches
+          .filter((m) => m.similarity >= this.config.GC2_SIMILARITY_THRESHOLD)
+          .map((m) => m.id),
+      );
+    }
+    await this.change(row.id, (s) => {
+      if (
+        s.finishedAt ||
+        (s.memoryTurnIndex ?? -1) > index ||
+        s.turns[index]?.id !== job.turnId ||
+        s.turns[index]?.invalidated ||
+        (s.turns[index]?.correction ?? "") !==
+          (row.state.turns[index]?.correction ?? "")
+      )
+        return;
+      s.memoryNodeIds = [...new Set(ids)].slice(0, 12);
+      s.memoryTurnIndex = index;
+    });
   }
   async memories(accountId: string, except: string, topic = "") {
+    const current = await this.row(except, accountId);
+    if (current.state.version === 2) {
+      const ids = current.state.memoryNodeIds;
+      if (ids && !ids.length) return [];
+      const rows = await this.db
+        .select({ node: graphNodes, date: voidSessions.createdAt })
+        .from(graphNodes)
+        .innerJoin(voidSessions, eq(graphNodes.sessionId, voidSessions.id))
+        .where(
+          and(
+            eq(graphNodes.accountId, accountId),
+            eq(graphNodes.scope, "private"),
+            ne(graphNodes.sessionId, except),
+            isNull(voidSessions.deletedAt),
+            ids ? inArray(graphNodes.id, ids) : undefined,
+          ),
+        )
+        .orderBy(desc(voidSessions.createdAt))
+        .limit(12);
+      return rows.map(({ node: n, date }) => ({
+        id: n.id,
+        dimension: n.kind,
+        summary: n.summary,
+        source: n.source,
+        turnIds: n.turnIds,
+        sources: n.turnIds.map((t) => `${n.sessionId}:${t}`),
+        date: date.toISOString(),
+      }));
+    }
     const rows = await this.db
       .select()
       .from(voidSessions)
@@ -957,6 +1078,24 @@ export class VoidService {
         throw e;
       });
     if (!job) return;
+    const owner = await this.row(job.sessionId).catch(() => null);
+    // Delete jobs operate on tombstones and do not invoke providers.
+    if (!owner && job.kind !== "delete") {
+      await this.done(job);
+      return;
+    }
+    return providerScope.run(
+      {
+        accountId: owner?.accountId ?? "",
+        sessionId: job.sessionId,
+        operationId: job.turnId ?? job.id,
+        attemptId: job.id,
+        parentAttemptId: job.parentId ?? undefined,
+      },
+      () => this.runClaimed(job),
+    );
+  }
+  private async runClaimed(job: Job) {
     try {
       if (job.kind === "delete") {
         await this.purge(job.sessionId);
@@ -972,7 +1111,8 @@ export class VoidService {
         await this.done(job);
         return;
       }
-      if (job.kind === "batch") await this.graph.analyse(job, row);
+      if (job.kind === "recall") await this.refreshMemories(job, row);
+      else if (job.kind === "batch") await this.graph.analyse(job, row);
       else if (job.kind === "graph" || job.kind === "compare") {
         const [analysis] = await this.db
           .select()
@@ -1040,7 +1180,12 @@ export class VoidService {
           if (job.kind === "batch") s.processing = "failed";
           s.failedKind = job.kind as "host" | "reveal" | "batch";
           s.error =
-            "That thought didn't come through. Retry, or finish when you're ready.";
+            error instanceof AppError
+              ? error.message +
+                (error.retryAfterSeconds
+                  ? ` Try again in ${error.retryAfterSeconds} seconds.`
+                  : "")
+              : "That thought didn't come through. Your answer is saved; retry or finish when ready.";
         }).catch(() => {});
       if (job.kind === "graph" || job.kind === "compare")
         await this.refreshGraphStatus(job.sessionId);
@@ -1210,10 +1355,40 @@ export class VoidService {
     await this.change(row.id, async (s, _r, tx) => {
       if (s.workId !== job.id || s.finishedAt) return;
       await this.assertSources(tx, sources);
+      if (s.version === 2 && memories.length) {
+        const live = await tx
+          .select({ id: graphNodes.id })
+          .from(graphNodes)
+          .where(
+            and(
+              eq(graphNodes.accountId, row.accountId),
+              eq(graphNodes.scope, "private"),
+              inArray(
+                graphNodes.id,
+                memories.map((m) => m.id),
+              ),
+            ),
+          );
+        ensure(
+          live.length === memories.length,
+          "VOID_STALE_EVIDENCE",
+          "Earlier stories changed. Retry with the updated context.",
+          409,
+        );
+      }
       const caption = {
         id: randomUUID(),
         text: result.text,
-        sources: [...new Set(sources)],
+        sources: [
+          ...new Set([
+            ...memories
+              .filter((m) => result.evidenceIds.includes(m.id))
+              .flatMap((m) => m.sources),
+            ...row.state.turns
+              .filter((t) => result.evidenceIds.includes(t.id))
+              .flatMap((t) => t.sources),
+          ]),
+        ],
         audioPending: this.voiceAvailable,
       };
       if ("refusedTopics" in result && Array.isArray(result.refusedTopics))
@@ -1312,7 +1487,9 @@ export class VoidService {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
       const result = await Promise.race([
-        this.providers.tts(caption.text, controller.signal, row.state.language),
+        this.ai.admission.run("tts", "gnani:tts", caption.id, 8000, (signal) =>
+          this.providers.tts(caption.text, signal, row.state.language),
+        ),
         new Promise<never>((_, reject) => {
           timer = setTimeout(() => {
             controller.abort();
@@ -1509,6 +1686,7 @@ export class VoidService {
     return this.storage.get(asset.key);
   }
   async recover() {
+    await this.ai.admission.recover();
     const expired = await this.db
       .select()
       .from(voidSessions)

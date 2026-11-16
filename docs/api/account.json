@@ -62,7 +62,8 @@
               "enum": [
                 "en-IN",
                 "hi-IN",
-                "te-IN"
+                "te-IN",
+                "ta-IN"
               ]
             },
             "hostVoice": {

@@ -13,6 +13,7 @@ export type VectorFilter = {
   excludeAccountId?: string;
   excludeSessionId: string;
   model: string;
+  version?: number;
   view: "experience" | "response";
 };
 export interface VectorStore {
@@ -27,7 +28,7 @@ function eligible(f: VectorFilter) {
     eq(n.scope, f.scope),
     eq(n.provenance, f.provenance),
     eq(e.model, f.model),
-    eq(e.version, 1),
+    eq(e.version, f.version ?? 2),
     eq(e.dimensions, 768),
     eq(e.view, f.view),
     isNull(sessions.deletedAt),

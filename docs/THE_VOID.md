@@ -1,5 +1,7 @@
 # The Void — Game 2
 
+**15 November 2026 — current specification:** read [B077 reliability and matching](VOID_RELIABILITY.md), including protocol 3 and verification limits. The B064/B065 four-to-eight-turn and authentication notes below are historical; B069/B071 and B077 supersede them.
+
 ## Current revision — 9 November 2026, B069
 
 Read [Shared accounts and story graphs](ACCOUNTS_AND_STORY_GRAPHS.md) for current behavior. Google login is required locally; B065's shortcut is disabled. Version-2 conversations use optional follow-ups, up to 30 active minutes, and post-Finish background analysis/graphs. GC2 REST/socket paths are `/api/gc2/v2/*`, shared OAuth is `/api/account/v1/auth/google/callback`, and remembered onboarding replaces repeated checkboxes. Stored version-1 Google-owned sessions retain their old behavior. All B064/B065 text below describes historical implementation, not the new-session flow.

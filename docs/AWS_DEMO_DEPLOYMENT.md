@@ -64,6 +64,12 @@ Do not publish logs without reviewing them for private information. If HTTPS fai
 
 Browser HTTPS/WSS → Caddy → loopback proxy `3000` → Next.js `3001` or Fastify `4000` → PostgreSQL/local jobs and external AI APIs. PostgreSQL uses a private Unix socket and Linux peer authentication as `expose`; it has no public TCP listener or database password to copy. The data disk is encrypted and separate from the code/root disk. Local PC data is not imported.
 
+## Push versus deployment — 16 November 2026, B080
+
+The repository workflow `.github/workflows/verify.yml` runs verification, not deployment. Pushing `v2` publishes development source. Pushing `ec2` publishes deployment source but does not execute the server update steps below. The documented server checks out an exact commit; updating it requires fetching, building, migrating and restarting explicitly. A separate deployment automation would have to be configured to change this behavior.
+
+An application update on the existing instance does not change the hostname or require replacement infrastructure. Keep the same Elastic IP allocation/association and Caddy hostname. The current hostname includes the reserved IP: `https://expose.16.4.114.12.sslip.io`. Releasing/replacing that address would affect this IP-derived URL. These instructions do not require stopping the EC2 instance; only the application service is stopped for the documented update, with temporary downtime.
+
 ## Update from GitHub
 
 Push reviewed changes to `ec2` first. In the server terminal, record `git rev-parse HEAD`, then stop the app, back up its database and media, and check out the chosen **full commit hash**:

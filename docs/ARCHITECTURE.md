@@ -1,5 +1,7 @@
 # Architecture and system connections
 
+**15 November 2026 — B077:** The Void retains Fastify/PostgreSQL/pg-boss and local Silero/Gnani. Live conversation, background interpretation and asynchronous semantic recall have separate dispatch paths; PostgreSQL owns durable provider admission, attempt outcomes and circuit state. Embedding construction version 2 represents grounded experience and response fields separately. See [current architecture details](VOID_RELIABILITY.md).
+
 **EC2 demo, 10 November 2026 (B074):** see [server setup and operations](AWS_DEMO_DEPLOYMENT.md). TRUST_PROXY_LOOPBACK defaults off; the loopback-only EC2 proxy enables it to preserve client IPs for rate limits. PostgreSQL uses a local Unix socket; recordings/data live on retained encrypted storage.
 
 ## Shared accounts and story pipeline — 9 November 2026, B069

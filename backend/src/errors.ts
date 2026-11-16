@@ -1,5 +1,7 @@
 export class AppError extends Error {
   providerReason?: string;
+  retryAfterSeconds?: number;
+  rejected?: boolean;
   constructor(
     public code: string,
     message: string,

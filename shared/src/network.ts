@@ -8,7 +8,7 @@ import {
   StepDefinitionSchema,
   LobbyMessageSchema,
 } from "./game/contracts";
-export const PROTOCOL_VERSION = 6 as const;
+export const PROTOCOL_VERSION = 7 as const;
 export const GuestSchema = z
   .object({
     name: z.string().trim().min(1).max(24),
@@ -22,7 +22,7 @@ export const GuestSchema = z
 export const RoomSchema = SetupSchema;
 export const NetworkIntentSchema = z
   .object({
-    protocol_version: z.literal(6),
+    protocol_version: z.literal(7),
     type: z.literal("intent"),
     runId: z.string().uuid(),
     intent: IntentSchema.and(
@@ -32,7 +32,7 @@ export const NetworkIntentSchema = z
   .strict();
 export const ConnectSchema = z
   .object({
-    protocol_version: z.literal(6),
+    protocol_version: z.literal(7),
     type: z.literal("connect"),
     roomId: z.string().uuid(),
     lastRevision: z.number().int().nonnegative().default(0),
@@ -73,7 +73,7 @@ export const AudioPrepareSchema = AudioStartSchema.pick({
   runId: true,
   connectionId: true,
 })
-  .extend({ type: z.literal("prepare"), protocol_version: z.literal(6) })
+  .extend({ type: z.literal("prepare"), protocol_version: z.literal(7) })
   .strict();
 export const ConsentSchema = z
   .object({ reveal: z.boolean(), diagnostic: z.boolean().default(false) })
@@ -368,7 +368,7 @@ const phase = z.discriminatedUnion("type", [
 export const NetworkSnapshotSchema = z
   .object({
     lobbyChat: z.array(LobbyMessageSchema).max(50).optional(),
-    protocol_version: z.literal(6),
+    protocol_version: z.literal(7),
     online: z.literal(true),
     narration: NarrationSchema.optional(),
     inviteUrl: z.string().optional(),

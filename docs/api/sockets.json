@@ -1,5 +1,5 @@
 {
-  "protocol_version": 6,
+  "protocol_version": 7,
   "realtime": {
     "path": "/api/v1/realtime",
     "client": {
@@ -10,7 +10,7 @@
           "properties": {
             "protocol_version": {
               "type": "number",
-              "const": 6
+              "const": 7
             },
             "type": {
               "type": "string",
@@ -79,7 +79,7 @@
           "properties": {
             "protocol_version": {
               "type": "number",
-              "const": 6
+              "const": 7
             },
             "type": {
               "type": "string",
@@ -224,7 +224,9 @@
                       "enum": [
                         "en",
                         "hi",
-                        "hinglish"
+                        "hinglish",
+                        "te",
+                        "ta"
                       ]
                     },
                     "spice": {
@@ -709,7 +711,8 @@
                       "enum": [
                         "en-IN",
                         "hi-IN",
-                        "te-IN"
+                        "te-IN",
+                        "ta-IN"
                       ]
                     }
                   },
@@ -954,7 +957,8 @@
               "enum": [
                 "en-IN",
                 "hi-IN",
-                "te-IN"
+                "te-IN",
+                "ta-IN"
               ]
             },
             "outcome": {
@@ -1109,7 +1113,7 @@
                 },
                 "protocol_version": {
                   "type": "number",
-                  "const": 6
+                  "const": 7
                 },
                 "online": {
                   "type": "boolean",
@@ -1297,7 +1301,8 @@
                         "enum": [
                           "en-IN",
                           "hi-IN",
-                          "te-IN"
+                          "te-IN",
+                          "ta-IN"
                         ]
                       },
                       "seatId": {
@@ -1615,7 +1620,9 @@
                       "enum": [
                         "en",
                         "hi",
-                        "hinglish"
+                        "hinglish",
+                        "te",
+                        "ta"
                       ]
                     },
                     "pace": {
@@ -2808,7 +2815,7 @@
         },
         "protocol_version": {
           "type": "number",
-          "const": 6
+          "const": 7
         }
       },
       "required": [
@@ -2876,7 +2883,8 @@
           "enum": [
             "en-IN",
             "hi-IN",
-            "te-IN"
+            "te-IN",
+            "ta-IN"
           ]
         },
         "hostBeatId": {

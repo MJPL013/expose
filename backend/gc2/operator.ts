@@ -50,6 +50,13 @@ try {
         count++;
       }
     console.log(JSON.stringify({ syntheticSummariesApproved: count }));
+  } else if (command === "reprocess") {
+    const id = process.argv[3],
+      row = await service.row(id);
+    await service.reprocess(id, row.accountId);
+    console.log(
+      "New interpretation queued; prior comparison approval has been withdrawn.",
+    );
   } else if (command === "retry-graph") {
     const id = process.argv[3],
       row = await service.row(id);
@@ -57,7 +64,7 @@ try {
     console.log("Graph processing queued.");
   } else
     throw new Error(
-      "Commands: grant-admin ACCOUNT_ID | revoke-admin ACCOUNT_ID | approve-synthetic | retry-graph SESSION_ID",
+      "Commands: grant-admin ACCOUNT_ID | revoke-admin ACCOUNT_ID | approve-synthetic | retry-graph SESSION_ID | reprocess SESSION_ID",
     );
 } finally {
   await pool.end();

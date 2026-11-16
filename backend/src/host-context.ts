@@ -1,3 +1,4 @@
+import { languageNames } from "@expose/shared/game/host";
 import { activeStep, reduceIntent } from "@expose/shared/game/engine";
 import {
   spotlightQuestion,
@@ -255,6 +256,9 @@ export function directorContext(
       : [];
   return {
     language: state.setup.hostLanguage ?? "hinglish",
+    languageName: languageNames[state.setup.hostLanguage ?? "hinglish"],
+    ratingScale:
+      "Stored ratings run 0 (fully left) to 10 (fully right), with 5 balanced. Players see strength 5-left to 0-balanced to 5-right. Describe the chosen label and distance from centre, never quote a stored value as the displayed rating.",
     spice: state.setup.spice,
     tone:
       state.flow.version < 4

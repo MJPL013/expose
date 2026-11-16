@@ -383,7 +383,7 @@ export class NetworkSession implements SessionClient {
       if (this.socket !== socket) return;
       socket.send(
         JSON.stringify({
-          protocol_version: 6,
+          protocol_version: 7,
           type: "connect",
           roomId: this.roomId,
           lastRevision: this.snapshot.revision,
@@ -587,7 +587,7 @@ export class NetworkSession implements SessionClient {
         "Reconnect before submitting. Your answer has not been locked.",
       );
     const message = JSON.stringify({
-      protocol_version: 6,
+      protocol_version: 7,
       type: "intent",
       runId: this.snapshot.sessionId,
       intent,

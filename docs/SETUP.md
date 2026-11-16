@@ -1,5 +1,7 @@
 # Local development and private phone playtests
 
+**16 November 2026 — B078:** Create/join now uses the saved Profile, returning to unfinished setup after Save. Create a new room/rematch to use catalog 5 with Telugu/Tamil questions and Tamil microphone input. Refresh old clients for Game 1 protocol 7. See [room settings and language verification](ROOM_SETUP.md). Older dated setup notes below describe their original release.
+
 **EC2 demo, 10 November 2026 (B074):** see [server setup and operations](AWS_DEMO_DEPLOYMENT.md). TRUST_PROXY_LOOPBACK defaults off; the loopback-only EC2 proxy enables it to preserve client IPs for rate limits. PostgreSQL uses a local Unix socket; recordings/data live on retained encrypted storage.
 
 ## Quick Void guest entry — 9 November 2026, B071

@@ -3,7 +3,11 @@ import { setTimeout as delay } from "node:timers/promises";
 import { selectedHostLlm, type Config } from "./config";
 import { AppError, ensure } from "./errors";
 import { pcmWav } from "./media";
-import type { HostLanguage, SpeechLanguage } from "@expose/shared/game/host";
+import {
+  ttsLanguage,
+  type HostLanguage,
+  type SpeechLanguage,
+} from "@expose/shared/game/host";
 
 export type SpeechSegment = {
   id: string;
@@ -331,12 +335,24 @@ export class GnaniProviders implements Providers {
         ),
       },
     );
-    ensure(
-      response.ok,
-      "HOST_LLM_FAILED",
-      "The host is unavailable right now.",
-      502,
-    );
+    if (!response.ok) {
+      const error = new AppError(
+        "HOST_LLM_FAILED",
+        "The host is unavailable right now.",
+        response.status,
+      );
+      error.rejected = true;
+      const retry = response.headers.get("retry-after");
+      error.retryAfterSeconds = retry
+        ? Math.max(
+            0,
+            Number(retry) ||
+              Math.ceil((Date.parse(retry) - Date.now()) / 1000) ||
+              0,
+          )
+        : undefined;
+      throw error;
+    }
     const body = await response.json();
     const text = gemini
       ? body.candidates?.[0]?.content?.parts
@@ -436,14 +452,13 @@ export class GnaniProviders implements Providers {
         socket.send(
           JSON.stringify({
             text,
-            voice: c.GNANI_TTS_VOICE,
+            voice: voiceForLanguage(
+              c.GNANI_TTS_MODEL,
+              c.GNANI_TTS_VOICE,
+              language,
+            ),
             model: c.GNANI_TTS_MODEL,
-            language:
-              language === "en"
-                ? "en-IN"
-                : language === "hi"
-                  ? "hi-IN"
-                  : "hi-en",
+            language: ttsLanguage(language, c.GNANI_TTS_MODEL),
             audio_config: {
               sample_rate: 24000,
               num_channels: 1,
@@ -529,4 +544,37 @@ export class MockProviders implements Providers {
       seconds: 0.1,
     };
   }
+}
+
+/** v2 voices are language-specific; v3 voices are multilingual. No language fallback. */
+function voiceForLanguage(
+  model: string,
+  configured: string,
+  language: HostLanguage,
+) {
+  if (model === "timbre-v3.0") return configured;
+  const catalog: Record<HostLanguage, string[]> = {
+    en: ["Kaveri", "Trupti", "Devika", "Pranav", "Shlok", "Girish"],
+    hi: [
+      "Nalini",
+      "Bhavna",
+      "Yashvi",
+      "Urmila",
+      "Jwala",
+      "Chitra",
+      "Ambuja",
+      "Deepak",
+      "Roopesh",
+      "Vikrant",
+      "Hemraj",
+      "Jalaj",
+      "Omkar",
+    ],
+    hinglish: ["Poorvi"],
+    te: ["Suhana", "Lehara", "Lavanya", "Yukti", "Varuni"],
+    ta: ["Asmita", "Trisha", "Brinda", "Vedika", "Noopur"],
+  };
+  return catalog[language].includes(configured)
+    ? configured
+    : catalog[language][0];
 }

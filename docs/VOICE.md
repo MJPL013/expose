@@ -1,5 +1,15 @@
 # Voice, host and provider evidence
 
+## Rating scale wording — 16 November 2026, B079
+
+Authored rating instructions in English, Hindi, Hinglish, Telugu and Tamil explain centre zero and strength five at either end. Host context distinguishes these visible strengths from canonical 0–10 values so it can describe the endpoint instead of quoting a misleading stored number. Ratings remain manual; speech configuration, deadlines and allowances are unchanged. Actual spoken delivery remains a live-provider acceptance check.
+
+## Game 1 Telugu and Tamil — 16 November 2026, B078
+
+Game 1 protocol 7 supports five room languages and four microphone languages. Per-capture STT receives the selected code; authored narration and host/translation directions use the room language. TTS maps native language codes and language-compatible v2 voices without a Hindi fallback. Local mock WebSocket checks verified four STT and ten model/language TTS configurations. Factual aliases and spoken-choice matching remain deterministic. Voice input version 2, capture caps, retry limits and grace periods are unchanged. Hinglish translation review also handles Hindi-to-Latin transliteration. Real device/provider quality is pending; see [language details](ROOM_SETUP.md).
+
+**15 November 2026 — GC2 revision B077:** [The Void voice flow](VOID_RELIABILITY.md#conversation-and-voice) warms Silero on entry, verifies actual frames/detector readiness, separates capture/transcription/reply states and supplies private transcript progress. It retains bounded PCM transmission and the 60-second cap. Game 1 scoring and protocol are unchanged; the generic microphone controller now checks running audio and fresh frames.
+
 ## Guest entry — 9 November 2026, B071
 
 The Void can establish a browser guest before preparing the existing microphone and opening the owned GC2 socket. Google is optional; mic permission is still explicit. Silero/Gnani, original audio storage, live companion, post-Finish analysis and all voice limits are unchanged. Guest logout closes its active Void sockets and pauses the client. Different guest browsers cannot read each other's sessions or AI audio. This entry change does not establish new live-provider or physical microphone evidence.

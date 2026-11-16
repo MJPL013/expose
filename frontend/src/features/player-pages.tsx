@@ -2,6 +2,8 @@
 import { AccountPanel } from "../account/panel";
 import { FeedbackSettings } from "./feedback-settings";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { takeProfileReturn } from "../session/room-entry";
 import { useState } from "react";
 import {
   Bug,
@@ -72,6 +74,7 @@ function ProfileEditor({
   setNotice: (value: string) => void;
 }) {
   const { preferences, feedback } = useServices();
+  const router = useRouter();
   const { cards } = usePlayerPreferences();
   const [profile, setProfile] = useState(initial);
   const latest = cards[0];
@@ -99,6 +102,8 @@ function ProfileEditor({
                 persisted ? appCopy.profile.saved : appCopy.profile.temporary,
               );
               feedback.emit("save");
+              const destination = takeProfileReturn();
+              if (destination) router.push(destination);
             } catch {
               setNotice("Enter a display name to save your character.");
             }

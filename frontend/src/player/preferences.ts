@@ -28,6 +28,7 @@ const cardSchema = z.object({
 });
 const schema = z.object({
   version: z.literal(1),
+  profileComplete: z.boolean().optional(),
   speechLanguage: SpeechLanguageSchema.default("en-IN"),
   hostVoice: z.boolean().default(true),
   voiceMode: z.enum(["handsfree", "hold", "type"]).default("hold"),
@@ -108,10 +109,15 @@ export class PlayerPreferencesStore {
     return persisted;
   }
   applyAccount(value: import("@expose/shared/account").AccountPreferences) {
-    return this.save({ ...this.value, ...value, cards: this.value.cards });
+    return this.save({
+      ...this.value,
+      ...value,
+      profileComplete: true,
+      cards: this.value.cards,
+    });
   }
   saveProfile(profile: PlayerProfile) {
-    return this.save({ ...this.value, profile });
+    return this.save({ ...this.value, profile, profileComplete: true });
   }
   saveSpeechLanguage(speechLanguage: SpeechLanguage) {
     return this.save({ ...this.value, speechLanguage });

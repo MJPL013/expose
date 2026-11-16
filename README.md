@@ -1,5 +1,7 @@
 # Expose
 
+**15 November — Void reliability (B077):** verified listening states, recoverable turns, richer story evidence and persistent provider limits are implemented locally. See [implementation and verification](docs/VOID_RELIABILITY.md). Updated EC2/physical-phone acceptance remains pending.
+
 Multiplayer party-game playtest: 2–7 guests, Spotlight or Bluff, Hostel 2 AM or Goa Trip. A host creates a room and shares its generated code; friends join and chat until everyone is ready. Offline practice is isolated at `/demo`.
 
 | Folder | Responsibility |

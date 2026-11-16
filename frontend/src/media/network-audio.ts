@@ -67,7 +67,7 @@ export class NetworkAudio implements CaptureAdapter {
         socket.send(
           JSON.stringify({
             type: "prepare",
-            protocol_version: 6,
+            protocol_version: 7,
             roomId: metadata.roomId,
             runId: metadata.runId,
             connectionId: metadata.connectionId,

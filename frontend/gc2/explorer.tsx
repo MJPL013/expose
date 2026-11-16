@@ -22,7 +22,7 @@ export function StoryExplorer() {
     [session, setSession] = useState(""),
     [query, setQuery] = useState("");
   const [cluster, setCluster] = useState("");
-  const [view, setView] = useState<"experience" | "response">("experience"),
+  const [view, setView] = useState<"experience" | "response">("response"),
     [selected, setSelected] = useState(""),
     [expanded, setExpanded] = useState<string[]>([]),
     [error, setError] = useState(""),
@@ -426,6 +426,37 @@ export function StoryExplorer() {
                 or session to inspect the rest.
               </p>
             )}
+            {!!data.personPairs?.length && (
+              <details>
+                <summary>People with similar responses</summary>
+                <ul>
+                  {data.personPairs
+                    .filter((p) => !person || p.people.includes(person))
+                    .slice(0, 20)
+                    .map((p) => (
+                      <li key={p.people.join(":")}>
+                        <strong>
+                          {p.people
+                            .map(
+                              (id) =>
+                                people.find(([key]) => key === id)?.[1] ??
+                                "Person",
+                            )
+                            .join(" · ")}
+                        </strong>
+                        <p>
+                          {p.responseLinks} independent response connections ·{" "}
+                          {p.experienceLinks} shared experiences.{" "}
+                          {p.limitedEvidence
+                            ? "Limited evidence."
+                            : "Supported across several stories."}
+                        </p>
+                      </li>
+                    ))}
+                </ul>
+                <p>Exploratory similarities, not friendship probabilities.</p>
+              </details>
+            )}
             <div className={styles.workspace}>
               <div className={styles.canvas}>
                 <div
@@ -471,6 +502,32 @@ export function StoryExplorer() {
                     </span>
                     <h2>{detail.title}</h2>
                     <p>{detail.summary}</p>
+                    <p>
+                      {detail.source} · metadata version{" "}
+                      {detail.metadataVersion ?? 1}
+                    </p>
+                    {detail.metadata && (
+                      <dl>
+                        {Object.entries(detail.metadata)
+                          .filter(
+                            ([, v]) => v && (!Array.isArray(v) || v.length),
+                          )
+                          .map(([key, v]) => (
+                            <div key={key}>
+                              <dt>{key}</dt>
+                              <dd>
+                                {(Array.isArray(v) ? v : [v])
+                                  .map(
+                                    (field) =>
+                                      field &&
+                                      `${field.text} (${field.source})`,
+                                  )
+                                  .join(" · ")}
+                              </dd>
+                            </div>
+                          ))}
+                      </dl>
+                    )}
                     <h3>Why it connects</h3>
                     {relationships.length ? (
                       <ul>
