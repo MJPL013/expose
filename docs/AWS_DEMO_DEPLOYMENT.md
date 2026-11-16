@@ -1,10 +1,20 @@
 # Run Expose on EC2
 
+## Live update — 16 November 2026, B081
+
+The existing site is running release **`74c9cf90d1e958c46c26c0deb9d7c7ddae488acc`** from GitHub `ec2`, containing the published `v2` application. URL remains **https://expose.16.4.114.12.sslip.io**. The running instance and Elastic IP association were checked live; no instance, IP, hostname or Caddy configuration was replaced.
+
+Built a separate checkout under `/opt/expose/releases`, then briefly stopped application writes for backups and a consistent encrypted data-volume snapshot. Applied migrations 0012–0013 and moved the built release into `/opt/expose/app`. Existing `/etc/expose/backend.env` and persistent data paths were retained. The previous application is `/opt/expose/previous-B081`; private database/media backups are under `/srv/expose/backups/B081-74c9cf9` (restricted to root). Encrypted snapshot **`snap-0f5be09d39916f9f1`** completed at 100%; it incurs snapshot storage charges while retained. Do not delete these backups without a separate retention decision. Full restore drills remain unverified.
+
+Linux build and migrations succeeded. Expose, Caddy and PostgreSQL are active. Public HTTPS health reports Game 1 protocol 7 with voice enabled and the configured Gemini host. Eight isolated Edge checks passed against the live URL: health/protocol, HTTPS secure context, 2/3/4-player setup artwork, public-shell v21 and no page exceptions. No game room or paid AI request was created by these checks. They do not verify live speech quality or a complete physical-phone match. Historical optional-reply timing test failure remains documented.
+
+Refresh existing tabs to load the updated client. GitHub pushes still do not deploy automatically. The original preparation evidence below is historical; its statement that the app awaits configuration is superseded by this live update.
+
 ## Current demo
 
 - Region: **Mumbai (`ap-south-1`)**. CloudFormation stack: `expose-demo`.
 - Instance: **`i-0a62669d2d9bd436a`**, `t3.small`, Amazon Linux 2023, 2 GB RAM.
-- URL: **https://expose.16.4.114.12.sslip.io** (application starts after configuration).
+- URL: **https://expose.16.4.114.12.sslip.io** (live; see B081 verification above).
 - Source: [GitHub `ec2`](https://github.com/MJPL013/expose/tree/ec2). Releases use an exact commit.
 - Application: `/opt/expose/app`. Secrets: `/etc/expose/backend.env`, outside Git.
 

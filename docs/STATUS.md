@@ -1,5 +1,7 @@
 # Current implementation and remaining work
 
+**16 November 2026 — B081 deployed:** Live EC2 now runs `74c9cf9` from `ec2`, including B077–B079, at the unchanged HTTPS hostname. Separate Linux build, consistent encrypted snapshot, private backups, additive migrations, service health and eight public-browser checks passed. No paid AI acceptance run; physical-phone speech/gameplay and the existing backend timing-test failure remain open. See [deployment evidence and rollback locations](AWS_DEMO_DEPLOYMENT.md#live-update--16-november-2026-b081).
+
 **16 November 2026 — B080:** Application commit `0d06f11` published to GitHub `v2`, including B077–B079. Source scan and contract checks passed; local artifacts excluded. No EC2 deployment. Existing backend timing failure and live-provider/physical-device acceptance remain open. Repository CI does not deploy; live AWS inspection was blocked by an expired session.
 
 ## B079 — Rating tuner and seat alignment, 16 November 2026

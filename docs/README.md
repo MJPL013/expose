@@ -1,5 +1,7 @@
 # Expose documentation
 
+**16 November 2026 — B081 deployed:** Live EC2 now runs `74c9cf9` from `ec2`, including B077–B079, at the unchanged HTTPS hostname. Separate Linux build, consistent encrypted snapshot, private backups, additive migrations, service health and eight public-browser checks passed. No paid AI acceptance run; physical-phone speech/gameplay and the existing backend timing-test failure remain open. See [deployment evidence and rollback locations](AWS_DEMO_DEPLOYMENT.md#live-update--16-november-2026-b081).
+
 **16 November 2026 — B079:** [Centre-zero rating tuner and vehicle alignment](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079) revises B078. Opening traits remain shared across modes; visible 5–0–5 ratings retain compatible stored values. Browser checks passed; one previously intermittent backend timing assertion failed again and remains recorded.
 
 **16 November 2026 — B078:** [Game 1 room setup and catalog](ROOM_SETUP.md) documents saved-profile entry, booking-style controls, remote rooms, catalog 5 and Telugu/Tamil. Game 1 is protocol 7; GC2 remains 3. Read its verification boundary before treating language support as live speech acceptance.
