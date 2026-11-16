@@ -3,6 +3,7 @@ import { spotlightPack } from "./spotlight";
 import type { PackId } from "./contracts";
 import { getPack, getSpotlightPack } from "./packs";
 import { z } from "zod";
+import { catalogContent } from "./catalog";
 import { localizeContent } from "./languages";
 import type { HostLanguage } from "./host";
 import { SpotlightQuestionSchema } from "./spotlight";
@@ -59,20 +60,31 @@ export function captureContent(
   language: HostLanguage = "en",
 ): ContentSnapshot {
   const { story, ...data } = getPack(id);
-  return localizeContent(
-    structuredClone({
-      version: `${id}@3:${language}`,
-      data,
-      story: story(
-        "{hero}",
-        "{speaker}",
-        "{catchphrase}",
-        Array.from({ length: seats }, (_, i) => `{seat${i}}`),
-      ),
-      spotlight: getSpotlightPack(id),
-    }),
-    language,
-  );
+  const original = structuredClone({
+    version: `${id}@3:${language}`,
+    data,
+    story: story(
+      "{hero}",
+      "{speaker}",
+      "{catchphrase}",
+      Array.from({ length: seats }, (_, i) => `{seat${i}}`),
+    ),
+    spotlight: getSpotlightPack(id),
+  });
+  if (language === "te" || language === "ta")
+    return catalogContent(
+      original,
+      {
+        name: "",
+        adult: false,
+        mode: "remote",
+        spice: "medium",
+        packId: id,
+        hostLanguage: language,
+      },
+      "preview",
+    );
+  return localizeContent(original, language);
 }
 export function contentFor(snapshot?: ContentSnapshot): typeof pack {
   if (!snapshot) return pack;

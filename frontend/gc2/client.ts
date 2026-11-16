@@ -27,6 +27,8 @@ export async function api<T>(
   return value as T;
 }
 export type Presence =
+  | "preparing"
+  | "transcribing"
   | "idle"
   | "listening"
   | "user"
@@ -46,6 +48,8 @@ export type ClientState = {
   speechLanguage: "en-IN" | "hi-IN" | "te-IN";
   audioBlocked: boolean;
   elapsed: number;
+  heard: string;
+  detectorReady: boolean;
 };
 type Capture = {
   id: string;
@@ -73,6 +77,8 @@ export class VoidClient {
     speechLanguage: "en-IN",
     audioBlocked: false,
     elapsed: 0,
+    heard: "",
+    detectorReady: false,
   };
   private listeners = new Set<() => void>();
   private mic = new PreparedMicrophone();
@@ -101,6 +107,14 @@ export class VoidClient {
     audioMs?: number;
   } = {};
   private speechEndedAt = 0;
+  private progressTimer: ReturnType<typeof setTimeout> | undefined;
+  private playbackTimer: ReturnType<typeof setTimeout> | undefined;
+  private operationId = "";
+  private segments = new Map<string, string>();
+  private audioWaitingId = "";
+  private audioPendingTimer: ReturnType<typeof setTimeout> | undefined;
+  private expiredAudio = new Set<string>();
+  private armGeneration = 0;
   subscribe = (fn: () => void) => {
     this.listeners.add(fn);
     return () => {
@@ -108,6 +122,18 @@ export class VoidClient {
     };
   };
   getSnapshot = () => this.state;
+  get canAnswer() {
+    const s = this.state,
+      v = s.view;
+    return Boolean(
+      v &&
+      s.connected &&
+      !this.playbackBusy &&
+      !s.audioBlocked &&
+      this.played.has(v.caption.id) &&
+      ["ready", "review", "error"].includes(v.status),
+    );
+  }
   private set(patch: Partial<ClientState>) {
     this.state = { ...this.state, ...patch };
     this.listeners.forEach((fn) => fn());
@@ -166,6 +192,7 @@ export class VoidClient {
   }
   async enable() {
     const generation = ++this.enabling;
+    this.set({ presence: "preparing", error: "" });
     try {
       await this.unlockAudio();
       await this.mic.prepare();
@@ -197,13 +224,36 @@ export class VoidClient {
           c.queue.push(frame.slice(0));
         }
       };
+      this.mic.onUnavailable = (message) => {
+        this.mute();
+        this.set({ error: message });
+      };
       this.set({ enabled: true, muted: false, error: "" });
+      // Prepare locally while entry/the greeting completes. Never open STT here.
+      void this.mic
+        .warmup()
+        .then(() => {
+          if (generation !== this.enabling) return;
+          this.set({ detectorReady: true });
+          this.sync();
+        })
+        .catch(() => {
+          if (generation !== this.enabling) return;
+          this.setMode("tap");
+          this.set({
+            detectorReady: false,
+            error: "Hands-free couldn't start. Tap to speak or type instead.",
+          });
+        });
       this.sync();
       return true;
-    } catch {
+    } catch (error) {
+      this.mic.release();
       this.set({
         error:
-          "Microphone access isn't available. Allow it in your browser, or type instead.",
+          error instanceof Error
+            ? error.message
+            : "Allow microphone access, or type instead.",
         enabled: false,
         muted: true,
       });
@@ -214,11 +264,11 @@ export class VoidClient {
     this.disconnect(false);
     this.fresh = fresh;
     const ws = (this.socket = new WebSocket(
-      `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/api/gc2/v2/socket`,
+      `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/api/gc2/v3/socket`,
     ));
     ws.onopen = () => {
       if (this.socket !== ws) return;
-      this.send({ type: "claim", protocol: 2, sessionId });
+      this.send({ type: "claim", protocol: 3, sessionId });
     };
     ws.onmessage = (event) => {
       if (this.socket !== ws) return;
@@ -229,12 +279,23 @@ export class VoidClient {
         return;
       }
       if (m.type === "state") {
-        if (m.view.protocol !== 2) {
+        if (m.view.protocol !== 3) {
           this.pause();
           this.set({ error: "The Void has updated. Refresh to continue." });
           return;
         }
         const old = this.state.view;
+        if (old?.id === m.view.id && old.revision > m.view.revision) return;
+        if (
+          m.view.lastTurn &&
+          (!this.operationId ||
+            m.view.lastTurn.id === this.operationId ||
+            m.reason === "claimed")
+        )
+          this.set({ heard: m.view.lastTurn.text });
+        if (old?.caption.id !== m.view.caption.id || m.view.error)
+          clearTimeout(this.progressTimer);
+        if (old?.caption.id !== m.view.caption.id) this.set({ error: "" });
         if (m.reason === "claimed") {
           this.defaultSpeechLanguage(m.view.language);
           if (!this.fresh) this.played.add(m.view.caption.id);
@@ -257,6 +318,20 @@ export class VoidClient {
           this.finalising = null;
         this.set({ view: m.view });
         this.sync();
+      } else if (m.type === "capture.progress" && this.operationId === m.id) {
+        if (m.text) {
+          if (m.segmentId) {
+            this.segments.set(m.segmentId, m.text);
+            this.set({ heard: [...this.segments.values()].join(" ") });
+          } else this.set({ heard: m.text });
+        }
+        if (m.stage === "accepted")
+          this.metrics.transcriptMs = performance.now() - this.speechEndedAt;
+        if (m.stage === "replying")
+          this.watchProgress(
+            20000,
+            "Your answer is saved. The reply is delayed; resume or retry when available.",
+          );
       } else if (m.type === "capture.accepted" && this.capture?.id === m.id)
         this.capture.accepted = true;
       else if (m.type === "capture.ready" && this.capture?.id === m.id)
@@ -270,8 +345,16 @@ export class VoidClient {
             "This conversation moved to another device. Resume to take it back.",
         });
       } else if (m.type === "error") {
+        clearTimeout(this.progressTimer);
         this.cancelCapture();
-        this.set({ error: m.message, presence: "paused" });
+        this.set({
+          error:
+            m.message +
+            (m.retryAfterSeconds
+              ? ` Try again in ${m.retryAfterSeconds} seconds.`
+              : ""),
+          presence: "paused",
+        });
         this.mic.listen(null);
       }
     };
@@ -292,6 +375,7 @@ export class VoidClient {
     };
   }
   private sync() {
+    const armGeneration = ++this.armGeneration;
     const s = this.state,
       v = s.view;
     clearTimeout(this.arming);
@@ -318,6 +402,11 @@ export class VoidClient {
       return;
     }
     const caption = v.caption;
+    if (this.expiredAudio.has(caption.id) && !this.played.has(caption.id)) {
+      this.mic.listen(null);
+      this.set({ audioBlocked: true, presence: "paused" });
+      return;
+    }
     if (!this.played.has(caption.id) && caption.audioId) {
       this.mic.listen(null);
       if (this.playbackRequest !== caption.id)
@@ -325,8 +414,23 @@ export class VoidClient {
       return;
     }
     if (!this.played.has(caption.id) && caption.audioPending) {
+      if (this.audioWaitingId !== caption.id) {
+        clearTimeout(this.audioPendingTimer);
+        this.audioWaitingId = caption.id;
+        this.audioPendingTimer = setTimeout(() => {
+          if (
+            this.state.view?.caption.id !== caption.id ||
+            !this.state.view.caption.audioPending
+          )
+            return;
+          this.expiredAudio.add(caption.id);
+          this.sync();
+        }, 15000);
+      }
       this.mic.listen(null);
-      this.set({ presence: "thinking" });
+      this.set({
+        presence: v.status === "transcribing" ? "transcribing" : "thinking",
+      });
       return;
     }
     // Captions-only continuation is explicit; do not record over someone reading a failed audio turn.
@@ -344,7 +448,9 @@ export class VoidClient {
       ["thinking", "revealing", "processing", "transcribing"].includes(v.status)
     ) {
       this.mic.listen(null);
-      this.set({ presence: "thinking" });
+      this.set({
+        presence: v.status === "transcribing" ? "transcribing" : "thinking",
+      });
       return;
     }
     if (v.status === "review") {
@@ -363,12 +469,24 @@ export class VoidClient {
       this.set({ presence: "paused" });
       return;
     }
-    this.set({ presence: "listening" });
+    if (!this.mic.ready) {
+      this.mute();
+      this.set({
+        error: "Microphone paused. Resume microphone or type instead.",
+      });
+      return;
+    }
+    this.set({ presence: s.mode === "handsfree" ? "preparing" : "listening" });
+    if (s.mode === "handsfree" && !s.detectorReady) return;
     if (s.mode === "handsfree")
       this.arming = setTimeout(
         () => {
           if (!this.state.muted && this.state.connected && !document.hidden)
             this.mic.listen({
+              ready: () => {
+                if (armGeneration === this.armGeneration && !this.capture)
+                  this.set({ presence: "listening" });
+              },
               start: () => this.startCapture(),
               end: () => this.stopCapture(false),
               error: () => {
@@ -389,9 +507,11 @@ export class VoidClient {
       !s.view ||
       !s.connected ||
       !s.enabled ||
+      !this.mic.ready ||
       s.muted ||
       this.capture ||
       this.playbackBusy ||
+      !this.played.has(s.view.caption.id) ||
       !["ready", ...(force ? ["review"] : [])].includes(s.view.status)
     )
       return;
@@ -414,6 +534,13 @@ export class VoidClient {
       ),
     };
     this.capture = c;
+    this.operationId = id;
+    this.segments.clear();
+    this.set({ heard: "" });
+    this.watchProgress(
+      10000,
+      "Speech recognition didn't connect. Try again or type.",
+    );
     this.firstFrameAt = preRoll.length ? performance.now() : 0;
     if (this.firstFrameAt)
       this.metrics.captureStartupMs = this.firstFrameAt - started;
@@ -431,6 +558,7 @@ export class VoidClient {
     const elapsed = Math.floor((performance.now() - c.started) / 1000);
     if (elapsed !== this.state.elapsed) this.set({ elapsed });
     if (!c.ready || !c.accepted) return;
+    if (!c.stopping) clearTimeout(this.progressTimer);
     if (c.queue.length) {
       if ((this.socket?.bufferedAmount ?? 0) > 64000) {
         this.failCapture(
@@ -445,7 +573,11 @@ export class VoidClient {
       this.send({ type: "capture.end", id: c.id, capped: c.capped });
       this.finalising = c.id;
       this.capture = null;
-      this.set({ presence: "thinking" });
+      this.set({ presence: "transcribing" });
+      this.watchProgress(
+        20000,
+        "Transcription is delayed. Resume the connection to recover your saved turns.",
+      );
     }
   }
   stopCapture(capped: boolean) {
@@ -457,9 +589,11 @@ export class VoidClient {
     this.mic.listen(null);
     this.speechEndedAt = performance.now();
     this.amplitude.current = 0;
-    this.set({ presence: "thinking" });
+    this.set({ presence: "transcribing" });
   }
   cancelCapture() {
+    clearTimeout(this.progressTimer);
+    this.armGeneration++;
     const c = this.capture;
     if (c) {
       clearInterval(c.timer);
@@ -479,14 +613,25 @@ export class VoidClient {
     this.cancelCapture();
     this.set({ error: message, presence: "paused" });
   }
+  private watchProgress(ms: number, message: string) {
+    clearTimeout(this.progressTimer);
+    this.progressTimer = setTimeout(() => {
+      if (this.capture) this.failCapture(message);
+      else {
+        this.mic.listen(null);
+        this.set({ error: message, presence: "paused" });
+      }
+    }, ms);
+  }
   continueCapture() {
     if (this.state.mode === "handsfree") {
       this.mic.listen({
+        ready: () => this.set({ presence: "listening" }),
         start: () => this.startCapture(true),
         end: () => this.stopCapture(false),
         error: () => this.setMode("tap"),
       });
-      this.set({ presence: "listening" });
+      this.set({ presence: "preparing" });
     } else this.startCapture(true);
   }
   action(type: "skip" | "finish" | "retry" | "pending.send") {
@@ -529,6 +674,7 @@ export class VoidClient {
     this.set({
       muted: true,
       enabled: false,
+      detectorReady: false,
       presence: this.playbackBusy ? "speaking" : "paused",
     });
   }
@@ -540,15 +686,32 @@ export class VoidClient {
     this.mic.listen(null);
     this.set({ presence: "thinking", audioBlocked: false });
     try {
-      await this.unlockAudio();
+      let unlockTimer: ReturnType<typeof setTimeout> | undefined;
+      await Promise.race([
+        this.unlockAudio(),
+        new Promise<never>((_, reject) => {
+          unlockTimer = setTimeout(
+            () => reject(new Error("Playback needs a tap")),
+            4000,
+          );
+        }),
+      ]).finally(() => clearTimeout(unlockTimer));
       const res = await fetch(
         `/api/gc2/v2/sessions/${this.state.view.id}/audio/${audioId}`,
-        { cache: "no-store" },
+        { cache: "no-store", signal: AbortSignal.timeout(8000) },
       );
       if (!res.ok) throw new Error("audio unavailable");
-      const buffer = await this.playback!.decodeAudioData(
-        await res.arrayBuffer(),
-      );
+      const bytes = await res.arrayBuffer();
+      let decodeTimer: ReturnType<typeof setTimeout> | undefined;
+      const buffer = await Promise.race([
+        this.playback!.decodeAudioData(bytes),
+        new Promise<never>((_, reject) => {
+          decodeTimer = setTimeout(
+            () => reject(new Error("Audio decoding timed out")),
+            8000,
+          );
+        }),
+      ]).finally(() => clearTimeout(decodeTimer));
       if (generation !== this.playbackGeneration || document.hidden) return;
       const source = (this.source = this.playback!.createBufferSource());
       source.buffer = buffer;
@@ -557,6 +720,7 @@ export class VoidClient {
       source.connect(this.analyser);
       this.analyser.connect(this.playback!.destination);
       source.onended = () => {
+        clearTimeout(this.playbackTimer);
         if (generation !== this.playbackGeneration) return;
         this.played.add(id);
         this.playbackBusy = false;
@@ -569,6 +733,14 @@ export class VoidClient {
       if (this.speechEndedAt)
         this.metrics.audioMs = performance.now() - this.speechEndedAt;
       source.start();
+      this.playbackTimer = setTimeout(
+        () => {
+          if (generation !== this.playbackGeneration) return;
+          this.stopPlayback();
+          this.set({ presence: "paused", audioBlocked: true });
+        },
+        Math.min(buffer.duration * 1000 + 3000, 90000),
+      );
       this.set({ presence: "speaking" });
     } catch {
       if (generation !== this.playbackGeneration) return;
@@ -596,11 +768,14 @@ export class VoidClient {
   replay() {
     const c = this.state.view?.caption;
     if (c?.audioId) {
+      this.cancelCapture();
+      this.expiredAudio.delete(c.id);
       this.stopPlayback();
       void this.play(c.id, c.audioId);
     }
   }
   private stopPlayback() {
+    clearTimeout(this.playbackTimer);
     ++this.playbackGeneration;
     this.source?.stop();
     this.source?.disconnect();
@@ -620,6 +795,8 @@ export class VoidClient {
   private disconnect(dispose: boolean) {
     clearInterval(this.heartbeat);
     clearTimeout(this.arming);
+    clearTimeout(this.audioPendingTimer);
+    this.audioWaitingId = "";
     const socket = this.socket;
     this.socket = null;
     socket?.close();

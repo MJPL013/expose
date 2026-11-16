@@ -85,6 +85,20 @@
       "when": 1794178802000,
       "tag": "0011_void_dispatch_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794700800000,
+      "tag": "0012_void_reliability",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794700801000,
+      "tag": "0013_void_ingress",
+      "breakpoints": true
     }
   ]
 }

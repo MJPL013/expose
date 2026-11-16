@@ -1,5 +1,13 @@
 # Current online game flow
 
+## Rating presentation — 16 November 2026, B079
+
+Both modes begin with the same three planning, calm/adventure and punctuality traits. Setting/language alter their wording; scored prompts later vary through the catalog and room history. Self → friend ratings now show a 5–0–5 tuner, where zero is balanced and either labelled endpoint has strength five. Untouched controls are unanswered. Internal values remain 0–10 (5 balanced), so scores, gaps, saved inputs and phase rules are unchanged. See [rating controls](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079).
+
+## Room settings and content — 16 November 2026, B078
+
+Game 1 protocol 7 and catalog 5 add profile-based entry, remote creation, distinct Hostel/Goa scenarios and separate creative prompts for each spice. Five room languages include Telugu and Tamil. Four microphone languages include Tamil. Pace cards use the existing engine deadlines, and owner changes reset readiness. Scoring, flow 4, voice allowances and host cadence are unchanged. Existing active runs keep saved content; new rooms/rematches prefer unseen catalog IDs. See [settings and pools](ROOM_SETUP.md).
+
 ## Separate solo experience — 7 November 2026, B064
 
 The Void is reached from its own home card: Google sign-in, storage agreement, microphone enable or typing, a topic-led conversation, grounded quote/persona, private history and later conversations with memory. It has no party-game rounds, ratings or scoring. Skip/Finish are available and unanswered/failed speech does not become evidence. See [The Void](THE_VOID.md). The remaining flow documentation describes Game 1.

@@ -1,5 +1,5 @@
 {
-  "protocol": 2,
+  "protocol": 3,
   "authentication": {
     "cookie": "expose_account",
     "guestCookie": "expose_void_guest",
@@ -71,7 +71,7 @@
     "GET /api/gc2/v2/sessions/:id/audio/:assetId": "Owner-only AI audio; player recordings cannot be fetched here"
   },
   "socket": {
-    "path": "/api/gc2/v2/socket",
+    "path": "/api/gc2/v3/socket",
     "client": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "oneOf": [
@@ -84,7 +84,7 @@
             },
             "protocol": {
               "type": "number",
-              "const": 2
+              "const": 3
             },
             "sessionId": {
               "type": "string",
@@ -377,6 +377,7 @@
       "capture.accepted",
       "capture.ready",
       "capture.cap",
+      "capture.progress",
       "error",
       "ownership.lost",
       "heartbeat"
@@ -389,7 +390,7 @@
       "cadenceMs": 32,
       "bufferSeconds": 2
     },
-    "state": "VoidView in shared/src/gc2.ts: caption/audio metadata, reflection, persona, status, revision and remaining allowance. No raw transcript or recording URL."
+    "state": "VoidView in shared/src/gc2.ts: caption/audio metadata, reflection, persona, status, revision and remaining allowance. Includes the latest private accepted transcript for optional review; no player recording URL."
   },
   "limits": {
     "captureSeconds": 60,
@@ -406,6 +407,16 @@
     "analysisDeadlineMs": 120000,
     "activeSeconds": 1800,
     "graphAttempts": 8,
+    "turnsPerMinute": 12,
+    "concurrency": {
+      "stt": 4,
+      "live": 4,
+      "tts": 4,
+      "analysis": 1,
+      "embedding": 2
+    },
+    "schemaVersion": 2,
+    "embeddingTextVersion": 2,
     "ttsDeadlineMs": 8000
   }
 }

@@ -10,6 +10,7 @@ import {
 import { ArrowRight, Mic, MicOff } from "lucide-react";
 import {
   languageNames,
+  speechLanguageOptions,
   speechMatchesRoom,
   type SpeechLanguage,
 } from "@expose/shared/game/host";
@@ -638,9 +639,11 @@ export function VoiceInput({
             }));
           }}
         >
-          <option value="en-IN">English</option>
-          <option value="hi-IN">हिन्दी · Hindi</option>
-          <option value="te-IN">తెలుగు · Telugu</option>
+          {speechLanguageOptions.map((l) => (
+            <option key={l.value} value={l.value}>
+              {l.label}
+            </option>
+          ))}
         </select>
       </label>
       {!available && (

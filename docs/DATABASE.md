@@ -1,5 +1,11 @@
 # Database and data ownership
 
+## Game 1 catalog 5 — 16 November 2026, B078
+
+No schema migration: existing room setup and run-content JSON store expanded languages and version-5 question IDs. New rooms/rematches use the new catalog; active saved runs retain their serialized content and deadlines. Room-level unseen-question history persists across rematches. Profile completion and temporary setup return state are browser preferences, not new evidence tables. Shared account preference validation accepts Tamil speech input. See [storage compatibility](ROOM_SETUP.md).
+
+**15 November 2026 — B077:** additive migrations 0012/0013 add `gc2_provider_operations`, `gc2_provider_circuits`, `gc2_ingress_limits`, job retry links, graph metadata/version fields, similarity signals and analysis schema versions. Admission reservations are atomic; provider calls run outside transactions. Existing evidence is retained; paid reprocessing is explicit. See [storage and controls](VOID_RELIABILITY.md).
+
 ## Browser Void profiles — 9 November 2026, B071
 
 No schema migration is required. `gc2_accounts.google_sub` also accepts server-generated `guest:<uuid>` identities for Void; account/login insertion is atomic. `gc2_logins` stores the hash of a random guest bearer cookie with a 180-day expiry. Shared Google auth and the admin operator reject guest subjects; Void fixes guest role to player. Existing session/audio/transcript/graph foreign keys therefore provide the same ownership isolation for guests. Preferences identifying voice mode/language stay in the browser. Saved conversation content remains in PostgreSQL and the private media directory, not browser localStorage. Explicit guest logout revokes access but does not delete content; history deletion uses the existing durable purge path. Legacy local/synthetic/Google data is not reassigned.

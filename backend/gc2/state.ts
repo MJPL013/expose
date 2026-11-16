@@ -79,6 +79,8 @@ export type SessionState = {
     tts: number;
     graph?: number;
   };
+  memoryNodeIds?: string[];
+  memoryTurnIndex?: number;
   questionTypes: string[];
 };
 export const greeting: Record<VoidLanguage, string> = {
@@ -128,7 +130,14 @@ export function view(row: {
   const s = row.state,
     caption = s.captions.at(-1)!;
   return {
-    protocol: 2,
+    protocol: 3,
+    operationId: s.turns.at(-1)?.id,
+    lastTurn: s.turns.at(-1)
+      ? {
+          id: s.turns.at(-1)!.id,
+          text: s.turns.at(-1)!.correction || s.turns.at(-1)!.text,
+        }
+      : undefined,
     flowVersion: s.version,
     processing: s.processing,
     graphStatus: s.graphStatus,

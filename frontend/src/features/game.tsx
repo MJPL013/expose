@@ -314,7 +314,7 @@ export function Game({
   if (
     !developerTools &&
     (!recovery.ready ||
-      (snapshot.online && recovery.active && snapshot.protocol_version !== 6))
+      (snapshot.online && recovery.active && snapshot.protocol_version !== 7))
   )
     return (
       <main id="main" className={app.scroll}>

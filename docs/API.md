@@ -1,5 +1,11 @@
 # API and realtime contract
 
+**16 November 2026 — B079:** The centre-zero rating tuner changes presentation only. Rating arrays still use integers 0–10, with 5 balanced; left/right strength is calculated by the client. No endpoint, schema, scoring or protocol change. Game 1 stays protocol 7 and GC2 stays 3. See [display mapping](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079).
+
+**16 November 2026 — B078:** Game 1 uses protocol **7** for connect/intent/audio preparation/state, with the explicit client-update response on mismatch. `hostLanguage` accepts `en|hi|hinglish|te|ta`; speech language accepts `en-IN|hi-IN|te-IN|ta-IN`, including shared account preferences. GC2 remains protocol 3 with its existing language contract. No new endpoint is introduced. See [room setup](ROOM_SETUP.md) and regenerated schemas in `docs/api/`.
+
+**15 November 2026 — B077:** GC2 WebSocket protocol **3** uses `/api/gc2/v3/socket`; compatible REST resources remain `/api/gc2/v2`. `capture.progress` identifies audio receipt, segments, acceptance and reply dispatch; owner-only views include `lastTurn`. Errors can include `retryAfterSeconds`. Game 1 remains protocol 6. See [GC2 contract](api/gc2.json) and [revision details](VOID_RELIABILITY.md).
+
 ## Void guests — 9 November 2026, B071
 
 GC2 v2 adds `POST /auth/guest` (body `{version:1,accepted:true}`), `POST /auth/guest/logout` and `POST /onboarding` under `/api/gc2/v2`. `/me` adds `guestAvailable` and `account.kind` (`guest` or `google`); shared types are `VoidIdentity` and `VoidIdentityView`. Guest bootstrap sets a 180-day HttpOnly `expose_void_guest` cookie and never grants shared-account/admin privileges. Existing GC2 session/history/audio/graph/socket ownership checks apply to guests. Mutations require an allowed Origin; bootstrap is limited to 12 requests/IP/hour. Logout revokes the guest token and closes owned Void sockets without deleting data. Game 1 protocol 6 and GC2 socket protocol 2 are unchanged; fields/endpoints are additive. See [generated GC2 contract](api/gc2.json).

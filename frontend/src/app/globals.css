@@ -2,6 +2,8 @@
 @import "@fontsource-variable/dm-sans";
 @import "@fontsource/anton";
 @import "@fontsource-variable/noto-sans-devanagari";
+@import "@fontsource-variable/noto-sans-tamil";
+@import "@fontsource-variable/noto-sans-telugu";
 
 :root {
   color-scheme: dark;
@@ -28,9 +30,12 @@
   --error-text: #ff9c97;
   --disabled-surface: #302c24;
   --disabled-text: #a99a7d;
-  --font-body: "DM Sans Variable", "Noto Sans Devanagari Variable", sans-serif;
+  --font-body:
+    "DM Sans Variable", "Noto Sans Devanagari Variable",
+    "Noto Sans Telugu Variable", "Noto Sans Tamil Variable", sans-serif;
   --font-heading:
-    "Bricolage Grotesque Variable", "Noto Sans Devanagari Variable", sans-serif;
+    "Bricolage Grotesque Variable", "Noto Sans Devanagari Variable",
+    "Noto Sans Telugu Variable", "Noto Sans Tamil Variable", sans-serif;
   --font-stamp: "Anton", sans-serif;
   --radius: 24px;
   --fast: 140ms;
@@ -62,7 +67,9 @@
 * {
   box-sizing: border-box;
 }
-:root[data-theme="light"] [data-brand-logo] { filter: brightness(.55) saturate(.85); }
+:root[data-theme="light"] [data-brand-logo] {
+  filter: brightness(0.55) saturate(0.85);
+}
 html {
   background: var(--bg);
   scroll-padding-block: 88px 130px;

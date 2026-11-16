@@ -802,7 +802,7 @@ export class Rooms {
   private projectFor(data: Loaded, playerId: string) {
     const m = this.member(data, playerId);
     const view = project(data.state, m.id);
-    view.protocol_version = 6;
+    view.protocol_version = 7;
     view.online = true;
     view.hostFlowVersion = data.state.hostFlowVersion;
     view.voiceInputVersion = data.state.voiceInputVersion ?? 1;

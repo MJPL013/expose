@@ -139,7 +139,7 @@ for (const [path, item] of Object.entries(paths)) {
 }
 const openapi = {
   openapi: "3.1.0",
-  info: { title: "Expose private playtest API", version: "6.0.0" },
+  info: { title: "Expose private playtest API", version: "7.0.0" },
   servers: [{ url: "/" }],
   paths,
   components: {
@@ -149,7 +149,7 @@ const openapi = {
   },
 };
 const sockets = {
-  protocol_version: 6,
+  protocol_version: 7,
   realtime: {
     path: "/api/v1/realtime",
     client: json(ClientMessageSchema),

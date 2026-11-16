@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   SpeechLanguageSchema,
   speechMatchesRoom,
+  languageNames,
 } from "@expose/shared/game/host";
 import { activeStep, project } from "@expose/shared/game/engine";
 import { Rooms, hash, type RunState } from "./rooms";
@@ -136,6 +137,7 @@ export class AnswerPreparation {
               original: input.original,
               from: input.language,
               to: claim.language,
+              toLanguageName: languageNames[claim.language],
             }),
             controller.signal,
             { json: true, schema: translationResponseSchema },

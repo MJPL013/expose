@@ -1,5 +1,5 @@
 import type { PgBoss } from "pg-boss";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, sql } from "drizzle-orm";
 import { voidJobs } from "./schema";
 import type { VoidService } from "./service";
 
@@ -9,12 +9,13 @@ export async function startVoidJobs(
   onError: (error: unknown) => void,
 ) {
   await boss.createQueue("gc2-work"); // Drain old persisted work with the version-aware service.
-  for (const name of ["gc2-work", "gc2-live", "gc2-background"]) {
+  for (const name of ["gc2-work", "gc2-live", "gc2-background", "gc2-recall"]) {
     if (name !== "gc2-work") await boss.createQueue(name);
     await boss.work<{ jobId: string }>(
       name,
       {
-        batchSize: name === "gc2-background" ? 1 : 8,
+        batchSize:
+          name === "gc2-background" ? 1 : name === "gc2-recall" ? 2 : 8,
         pollingIntervalSeconds: 0.5,
       },
       async (jobs) => {
@@ -32,19 +33,36 @@ export async function startVoidJobs(
         await service.recover();
         lastRecovery = Date.now();
       }
-      const jobs = await service.db
-        .select({
-          id: voidJobs.id,
-          kind: voidJobs.kind,
-          dispatchId: voidJobs.dispatchId,
-        })
-        .from(voidJobs)
-        .where(eq(voidJobs.status, "queued"))
-        .orderBy(asc(voidJobs.createdAt))
-        .limit(64);
+      // Independent selections prevent queued background receipts from hiding live work.
+      const jobs = [];
+      for (const group of ["live", "background", "recall"] as const) {
+        const eligible =
+          group === "live"
+            ? sql`${voidJobs.kind} not in ('batch','graph','compare','recall')`
+            : group === "recall"
+              ? eq(voidJobs.kind, "recall")
+              : sql`${voidJobs.kind} in ('batch','graph','compare')`;
+        jobs.push(
+          ...(await service.db
+            .select({
+              id: voidJobs.id,
+              kind: voidJobs.kind,
+              dispatchId: voidJobs.dispatchId,
+            })
+            .from(voidJobs)
+            .where(and(eq(voidJobs.status, "queued"), eligible))
+            .orderBy(asc(voidJobs.createdAt))
+            .limit(group === "live" ? 48 : 16)),
+        );
+      }
       for (const j of jobs) {
         const background = ["batch", "graph", "compare"].includes(j.kind);
-        const queue = background ? "gc2-background" : "gc2-live";
+        const queue =
+          j.kind === "recall"
+            ? "gc2-recall"
+            : background
+              ? "gc2-background"
+              : "gc2-live";
         if (j.dispatchId) {
           const delivery = await boss.getJobById(queue, j.dispatchId);
           if (

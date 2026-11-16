@@ -1,5 +1,12 @@
 import { z } from "zod";
 export const gc2Environment = {
+  GC2_STT_CONCURRENCY: z.coerce.number().int().min(1).max(32).default(4),
+  GC2_LIVE_CONCURRENCY: z.coerce.number().int().min(1).max(32).default(4),
+  GC2_TTS_CONCURRENCY: z.coerce.number().int().min(1).max(32).default(4),
+  GC2_ANALYSIS_CONCURRENCY: z.coerce.number().int().min(1).max(4).default(1),
+  GC2_EMBEDDING_CONCURRENCY: z.coerce.number().int().min(1).max(16).default(2),
+  GC2_TURNS_PER_MINUTE: z.coerce.number().int().min(1).max(60).default(12),
+  GC2_SIMILARITY_THRESHOLD: z.coerce.number().min(0).max(1).default(0.72),
   GC2_ENABLED: z.string().default("true"),
   GC2_GUEST_ENABLED: z.enum(["true", "false"]).default("true"),
   GC2_LOCAL_TESTING: z.enum(["true", "false"]).default("false"),

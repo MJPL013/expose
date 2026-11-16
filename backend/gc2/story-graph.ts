@@ -1,6 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq, isNull, inArray, desc, sql } from "drizzle-orm";
 import {
+  EMBEDDING_TEXT_VERSION,
+  metadataEvidence,
   StoryAnalysisSchema,
   LinkReviewSchema,
   type GraphView,
@@ -17,6 +19,95 @@ import type { SessionState } from "./state";
 import { storyPrompt, relationshipPrompt } from "./story-prompts";
 type Row = typeof voidSessions.$inferSelect;
 type Job = typeof voidJobs.$inferSelect;
+export function embeddingText(
+  node: Pick<
+    typeof g.graphNodes.$inferSelect,
+    "metadata" | "experience" | "response"
+  >,
+  view: "experience" | "response",
+) {
+  if (!node.metadata) return node[view];
+  const fields =
+    view === "response"
+      ? ([
+          "action",
+          "reasoning",
+          "reaction",
+          "goal",
+          "emotions",
+          "outcome",
+          "reflection",
+          "alternative",
+        ] as const)
+      : (["situation", "trigger", "constraints", "options"] as const);
+  const details = fields.flatMap((key) =>
+    node.metadata?.[key]
+      ? [`${key}: ${node.metadata[key]!.text} (${node.metadata[key]!.source})`]
+      : [],
+  );
+  return [node[view], ...details].filter(Boolean).join("\n");
+}
+export function personPairs(
+  nodes: GraphView["nodes"],
+  edges: GraphView["edges"],
+): NonNullable<GraphView["personPairs"]> {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const pairs = new Map<
+    string,
+    {
+      people: [string, string];
+      left: Set<string>;
+      right: Set<string>;
+      experiences: Set<string>;
+      signals: Map<string, number>;
+    }
+  >();
+  for (const e of edges) {
+    const a = byId.get(e.from),
+      b = byId.get(e.to);
+    if (
+      !a ||
+      !b ||
+      a.personId === b.personId ||
+      a.provenance !== b.provenance ||
+      !["similar-response", "related-experience"].includes(e.kind)
+    )
+      continue;
+    const [left, right] = a.personId < b.personId ? [a, b] : [b, a];
+    const key = `${left.personId}:${right.personId}`;
+    const p = pairs.get(key) ?? {
+      people: [left.personId, right.personId],
+      left: new Set<string>(),
+      right: new Set<string>(),
+      experiences: new Set<string>(),
+      signals: new Map<string, number>(),
+    };
+    const link = `${left.id}:${right.id}`;
+    if (e.kind === "similar-response") {
+      p.left.add(left.id);
+      p.right.add(right.id);
+      p.signals.set(link, e.similarity ?? 0);
+    } else p.experiences.add(link);
+    pairs.set(key, p);
+  }
+  return [...pairs.values()]
+    .map((p) => ({
+      people: p.people,
+      responseLinks: Math.min(3, p.left.size, p.right.size),
+      experienceLinks: p.experiences.size,
+      responseSimilarity: p.signals.size
+        ? [...p.signals.values()].reduce((a, b) => a + b, 0) / p.signals.size
+        : 0,
+      limitedEvidence: Math.min(p.left.size, p.right.size) < 2,
+    }))
+    .sort(
+      (a, b) =>
+        b.responseLinks - a.responseLinks ||
+        b.responseSimilarity - a.responseSimilarity ||
+        b.experienceLinks - a.experienceLinks ||
+        a.people.join().localeCompare(b.people.join()),
+    );
+}
 export function transcriptHash(s: SessionState) {
   return createHash("sha256")
     .update(
@@ -119,6 +210,7 @@ export class StoryGraph {
         inputHash: hash,
         status: "running",
         model: this.service.config.GC2_ANALYSIS_MODEL,
+        schemaVersion: 2,
       })
       .onConflictDoNothing();
     await this.service.change(row.id, (s) => {
@@ -156,7 +248,15 @@ export class StoryGraph {
       keys = new Set(result.nodes.map((n) => n.key));
     ensure(
       keys.size === result.nodes.length &&
-        result.nodes.every((n) => n.turnIds.every((id) => allowed.has(id))) &&
+        result.nodes.every(
+          (n) =>
+            n.turnIds.every((id) => allowed.has(id)) &&
+            metadataEvidence(n.metadata).every((v) =>
+              v.turnIds.every(
+                (id) => allowed.has(id) && n.turnIds.includes(id),
+              ),
+            ),
+        ) &&
         result.edges.every(
           (e) => keys.has(e.from) && keys.has(e.to) && e.from !== e.to,
         ) &&
@@ -190,6 +290,8 @@ export class StoryGraph {
           experience: node.experience,
           response: node.response,
           source: node.source,
+          metadata: node.metadata,
+          metadataVersion: 2,
           turnIds: node.turnIds,
           provenance: s.provenance ?? "real",
         });
@@ -204,6 +306,7 @@ export class StoryGraph {
         .filter((n) => n.kind === "story")
         .map((n) => ({
           key: n.key,
+          metadata: n.metadata,
           title: n.title,
           experience: n.experience,
           response: n.response,
@@ -297,12 +400,16 @@ export class StoryGraph {
                 g.graphEmbeddings.model,
                 this.service.config.GC2_EMBEDDING_MODEL,
               ),
-              eq(g.graphEmbeddings.version, 1),
+              eq(
+                g.graphEmbeddings.version,
+                node.metadataVersion >= 2 ? EMBEDDING_TEXT_VERSION : 1,
+              ),
               eq(g.graphEmbeddings.dimensions, 768),
             ),
           );
         const values =
-          existing?.values ?? (await this.service.ai.embed(node[view]));
+          existing?.values ??
+          (await this.service.ai.embed(embeddingText(node, view)));
         // A tombstone or changed summary must prevent a late embedding from entering retrieval.
         await this.service.change(row.id, async (_s, _r, tx) => {
           const [live] = await tx
@@ -329,6 +436,7 @@ export class StoryGraph {
               view,
               model: this.service.config.GC2_EMBEDDING_MODEL,
               dimensions: 768,
+              version: node.metadataVersion >= 2 ? EMBEDDING_TEXT_VERSION : 1,
               values,
             })
             .onConflictDoUpdate({
@@ -337,7 +445,7 @@ export class StoryGraph {
                 model: this.service.config.GC2_EMBEDDING_MODEL,
                 dimensions: 768,
                 values,
-                version: 1,
+                version: node.metadataVersion >= 2 ? EMBEDDING_TEXT_VERSION : 1,
               },
             });
         });
@@ -351,12 +459,13 @@ export class StoryGraph {
               scope === "comparison" ? row.accountId : undefined,
             excludeSessionId: row.id,
             model: this.service.config.GC2_EMBEDDING_MODEL,
+            version: node.metadataVersion >= 2 ? EMBEDDING_TEXT_VERSION : 1,
             view,
           },
           5,
         );
         for (const other of nearest)
-          if (other.similarity >= 0.72)
+          if (other.similarity >= this.service.config.GC2_SIMILARITY_THRESHOLD)
             candidates.push({
               from: node.id,
               to: other.id,
@@ -372,10 +481,14 @@ export class StoryGraph {
         a.from.localeCompare(b.from) ||
         a.to.localeCompare(b.to),
     )) {
-      const key = `${candidate.from}:${candidate.to}`;
+      const key = `${candidate.from}:${candidate.to}:${candidate.view}`;
       if (!uniquePairs.has(key)) uniquePairs.set(key, candidate);
     }
-    const shortlist = [...uniquePairs.values()].slice(0, 12);
+    const ordered = [...uniquePairs.values()];
+    const shortlist = [
+      ...ordered.filter((p) => p.view === "response").slice(0, 8),
+      ...ordered.filter((p) => p.view === "experience").slice(0, 4),
+    ];
     if (shortlist.length) {
       const ids = [...new Set(shortlist.flatMap((p) => [p.from, p.to]))];
       const materials = await this.service.db
@@ -384,19 +497,50 @@ export class StoryGraph {
           summary: g.graphNodes.summary,
           experience: g.graphNodes.experience,
           response: g.graphNodes.response,
+          metadata: g.graphNodes.metadata,
+          turnIds: g.graphNodes.turnIds,
+          sessionId: g.graphNodes.sessionId,
         })
         .from(g.graphNodes)
         .where(inArray(g.graphNodes.id, ids));
+      const evidence =
+        scope === "private"
+          ? await this.service.db
+              .select({
+                id: g.transcriptTurns.id,
+                text: g.transcriptTurns.text,
+                correction: g.transcriptTurns.correction,
+              })
+              .from(g.transcriptTurns)
+              .where(
+                and(
+                  inArray(g.transcriptTurns.sessionId, [
+                    ...new Set(materials.map((n) => n.sessionId)),
+                  ]),
+                  inArray(g.transcriptTurns.id, [
+                    ...new Set(materials.flatMap((n) => n.turnIds)),
+                  ]),
+                  eq(g.transcriptTurns.role, "user"),
+                  eq(g.transcriptTurns.status, "accepted"),
+                ),
+              )
+          : [];
       const result = await this.service.ai.generate(
         "analysis",
         LinkReviewSchema,
         relationshipPrompt,
-        { scope, candidates: shortlist, nodes: materials },
+        { scope, candidates: shortlist, nodes: materials, evidence },
+        "review",
       );
       ensure(
         result.links.every(
           (e) =>
-            shortlist.some((p) => p.from === e.from && p.to === e.to) &&
+            shortlist.some(
+              (p) => p.from === e.from && p.to === e.to && p.view === e.view,
+            ) &&
+            (e.view === "response"
+              ? ["similar-response", "supports", "contradicts"].includes(e.kind)
+              : ["continues", "related-experience"].includes(e.kind)) &&
             (scope === "private" ||
               ["related-experience", "similar-response"].includes(e.kind)),
         ),
@@ -421,7 +565,19 @@ export class StoryGraph {
           if (valid.has(link.from) && valid.has(link.to))
             await tx
               .insert(g.graphEdges)
-              .values({ ...link, inferred: true })
+              .values({
+                from: link.from,
+                to: link.to,
+                kind: link.kind,
+                reason: link.reason,
+                similarity: shortlist.find(
+                  (p) =>
+                    p.from === link.from &&
+                    p.to === link.to &&
+                    p.view === link.view,
+                )?.similarity,
+                inferred: true,
+              })
               .onConflictDoNothing();
       });
     }
@@ -491,6 +647,8 @@ export class StoryGraph {
         experience: n.experience,
         response: n.response,
         source: n.source,
+        metadata: n.metadata,
+        metadataVersion: n.metadataVersion,
         turnIds: accountId ? n.turnIds : [],
         provenance: n.provenance as "real" | "synthetic",
         analysisVersion: version,
@@ -506,7 +664,8 @@ export class StoryGraph {
           )
       : [];
     return {
-      version: 1,
+      version: 2,
+      personPairs: personPairs(nodes, edges),
       nodes,
       edges,
       clusters: clusters(nodes, edges),
@@ -592,8 +751,18 @@ export class StoryGraph {
         );
         const next = items ?? current.items;
         ensure(
-          next.every((n) => current.items.some((i) => i.key === n.key)) &&
-            new Set(next.map((n) => n.key)).size === next.length,
+          next.every((n) => {
+            const original = current.items.find((i) => i.key === n.key);
+            const allowed = new Set(
+              metadataEvidence(original?.metadata).flatMap((v) => v.turnIds),
+            );
+            return (
+              original &&
+              metadataEvidence(n.metadata).every((v) =>
+                v.turnIds.every((id) => allowed.has(id)),
+              )
+            );
+          }) && new Set(next.map((n) => n.key)).size === next.length,
           "INVALID_SUMMARY",
           "Keep only stories from this summary.",
           400,
@@ -631,6 +800,8 @@ export class StoryGraph {
               experience: item.experience,
               response: item.response,
               source: "approved-summary",
+              metadata: item.metadata,
+              metadataVersion: item.metadata ? 2 : 1,
               turnIds: [],
             });
           await this.service.enqueue(tx, summary.sessionId, "compare");

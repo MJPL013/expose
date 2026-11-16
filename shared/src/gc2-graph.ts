@@ -1,6 +1,39 @@
 import { z } from "zod";
-export const GRAPH_VERSION = 1;
-export const StorySchema = z.object({
+export const GRAPH_VERSION = 2;
+export const EMBEDDING_TEXT_VERSION = 2;
+export const EvidenceValue = z
+  .strictObject({
+    text: z.string().trim().min(1).max(280),
+    turnIds: z.array(z.string().min(1)).min(1).max(8),
+    source: z.enum(["lived", "hypothetical", "self-described", "inferred"]),
+  })
+  .strict();
+export const StoryMetadataSchema = z
+  .strictObject({
+    situation: EvidenceValue.nullable(),
+    trigger: EvidenceValue.nullable(),
+    tags: z.array(EvidenceValue).max(8),
+    goal: EvidenceValue.nullable(),
+    constraints: EvidenceValue.nullable(),
+    options: EvidenceValue.nullable(),
+    action: EvidenceValue.nullable(),
+    reasoning: EvidenceValue.nullable(),
+    reaction: EvidenceValue.nullable(),
+    emotions: EvidenceValue.nullable(),
+    outcome: EvidenceValue.nullable(),
+    reflection: EvidenceValue.nullable(),
+    alternative: EvidenceValue.nullable(),
+  })
+  .strict();
+export type StoryMetadata = z.infer<typeof StoryMetadataSchema>;
+export function metadataEvidence(metadata?: StoryMetadata | null) {
+  return metadata
+    ? Object.values(metadata).flatMap((v) =>
+        Array.isArray(v) ? v : v ? [v] : [],
+      )
+    : [];
+}
+export const StorySchema = z.strictObject({
   key: z.string().min(1).max(60),
   kind: z.enum(["story", "observation"]),
   title: z.string().min(1).max(100),
@@ -9,6 +42,7 @@ export const StorySchema = z.object({
   response: z.string().max(350),
   source: z.enum(["lived", "hypothetical", "self-described", "inferred"]),
   turnIds: z.array(z.string()).min(1).max(20),
+  metadata: StoryMetadataSchema,
 });
 export const RelationshipKind = z.enum([
   "continues",
@@ -17,12 +51,12 @@ export const RelationshipKind = z.enum([
   "contradicts",
   "similar-response",
 ]);
-export const StoryAnalysisSchema = z.object({
+export const StoryAnalysisSchema = z.strictObject({
   summary: z.string().max(1600),
   nodes: z.array(StorySchema).max(40),
   edges: z
     .array(
-      z.object({
+      z.strictObject({
         from: z.string(),
         to: z.string(),
         kind: RelationshipKind,
@@ -31,12 +65,12 @@ export const StoryAnalysisSchema = z.object({
     )
     .max(60),
   persona: z
-    .object({
+    .strictObject({
       title: z.string().max(65),
       quote: z.string().max(220),
       observations: z
         .array(
-          z.object({
+          z.strictObject({
             text: z.string().max(220),
             nodeKeys: z.array(z.string()).min(1).max(10),
           }),
@@ -46,12 +80,13 @@ export const StoryAnalysisSchema = z.object({
     })
     .nullable(),
 });
-export const LinkReviewSchema = z.object({
+export const LinkReviewSchema = z.strictObject({
   links: z
     .array(
-      z.object({
+      z.strictObject({
         from: z.string(),
         to: z.string(),
+        view: z.enum(["experience", "response"]),
         kind: RelationshipKind,
         reason: z.string().min(1).max(400),
       }),
@@ -59,6 +94,8 @@ export const LinkReviewSchema = z.object({
     .max(40),
 });
 export type GraphNode = {
+  metadata?: StoryMetadata | null;
+  metadataVersion?: number;
   id: string;
   personId: string;
   personName: string;
@@ -74,6 +111,7 @@ export type GraphNode = {
   analysisVersion: number;
 };
 export type GraphEdge = {
+  similarity?: number | null;
   id: string;
   from: string;
   to: string;
@@ -82,7 +120,14 @@ export type GraphEdge = {
   inferred: boolean;
 };
 export type GraphView = {
-  version: 1;
+  version: 1 | 2;
+  personPairs?: {
+    people: [string, string];
+    responseLinks: number;
+    experienceLinks: number;
+    responseSimilarity: number;
+    limitedEvidence: boolean;
+  }[];
   pendingSessions?: number;
   failedSessions?: number;
   nodes: GraphNode[];
@@ -99,5 +144,11 @@ export type ComparisonSummary = {
   sessionId: string;
   revision: number;
   approved: boolean;
-  items: { key: string; title: string; experience: string; response: string }[];
+  items: {
+    key: string;
+    title: string;
+    experience: string;
+    response: string;
+    metadata?: StoryMetadata | null;
+  }[];
 };

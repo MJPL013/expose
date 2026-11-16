@@ -318,22 +318,6 @@
 .holdMic:disabled {
   opacity: 0.5;
 }
-.ratingAlternatives {
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-.ratingAlternatives button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-}
 .hostMoment {
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -353,73 +337,6 @@
 .hostMoment summary {
   min-height: 44px;
   cursor: pointer;
-}
-.trait input[type="range"] {
-  appearance: none;
-  -webkit-appearance: none;
-  min-height: 44px;
-  touch-action: pan-y;
-  cursor: pointer;
-  width: 100%;
-  background: transparent;
-  padding: 0;
-}
-.trait input[type="range"]::-webkit-slider-runnable-track {
-  height: 8px;
-  border-radius: 8px;
-  background: var(--border);
-}
-.trait input[type="range"]::-moz-range-track {
-  height: 8px;
-  border-radius: 8px;
-  background: var(--border);
-}
-.trait input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  margin-top: -10px;
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--text);
-  border-radius: 50%;
-  background: var(--primary);
-}
-.trait input[type="range"]::-moz-range-thumb {
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--text);
-  border-radius: 50%;
-  background: var(--primary);
-}
-.trait {
-  padding: 22px 0 15px;
-  border-bottom: 1px solid var(--border);
-}
-.trait > span {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-.trait b {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.trait b:last-child {
-  text-align: right;
-  color: var(--secondary);
-}
-.trait input {
-  margin: 6px 0 0;
-}
-.trait small {
-  color: var(--secondary);
-  font-size: 0.625rem;
-}
-.trait output {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--accent-text);
 }
 .paperLabel {
   font-size: 0.5rem;

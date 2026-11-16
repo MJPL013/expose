@@ -103,6 +103,65 @@ export function ComparisonApproval({ sessionId }: { sessionId: string }) {
                 }
               />
             </label>
+            {item.metadata && (
+              <details>
+                <summary>Review supporting story details and tags</summary>
+                {Object.entries(item.metadata).map(([key, value]) => (
+                  <div key={key}>
+                    <strong>{key}</strong>
+                    {(Array.isArray(value) ? value : value ? [value] : []).map(
+                      (field, fieldIndex) => (
+                        <label key={fieldIndex}>
+                          {field.source}
+                          <textarea
+                            maxLength={280}
+                            value={field.text}
+                            onChange={(e) =>
+                              setItems(
+                                items.map((v, i) => {
+                                  if (i !== index || !v.metadata) return v;
+                                  const metadata = { ...v.metadata };
+                                  if (key === "tags")
+                                    metadata.tags = metadata.tags.map((t, j) =>
+                                      j === fieldIndex
+                                        ? { ...t, text: e.target.value }
+                                        : t,
+                                    );
+                                  else {
+                                    const name = key as Exclude<
+                                      keyof typeof metadata,
+                                      "tags"
+                                    >;
+                                    const entry = metadata[name];
+                                    if (entry)
+                                      metadata[name] = {
+                                        ...entry,
+                                        text: e.target.value,
+                                      };
+                                  }
+                                  return { ...v, metadata };
+                                }),
+                              )
+                            }
+                          />
+                        </label>
+                      ),
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() =>
+                    setItems(
+                      items.map((v, i) =>
+                        i === index ? { ...v, metadata: null } : v,
+                      ),
+                    )
+                  }
+                >
+                  Exclude these details
+                </button>
+              </details>
+            )}
             <button
               onClick={() => setItems(items.filter((_, i) => i !== index))}
             >

@@ -72,19 +72,77 @@ const normalized = (s: string) =>
     .trim()
     .replace(/\s+/g, " ");
 const numbers = [
-  ["1", "one", "first", "a", "एक", "ek", "ఒకటి", "okati"],
-  ["2", "two", "second", "b", "दो", "do", "రెండు", "rendu"],
-  ["3", "three", "third", "c", "तीन", "teen", "మూడు", "moodu"],
-  ["4", "four", "fourth", "d", "चार", "chaar", "నాలుగు", "nalugu"],
-  ["5", "five", "fifth", "e", "पांच", "पाँच", "paanch", "ఐదు", "aidu"],
-  ["6", "six", "sixth", "f", "छह", "chhe", "ఆరు", "aaru"],
-  ["7", "seven", "seventh", "g", "सात", "saat", "ఏడు", "edu"],
-  ["8", "eight", "eighth", "h", "आठ", "aath", "ఎనిమిది", "enimidi"],
+  [
+    "1",
+    "one",
+    "first",
+    "a",
+    "एक",
+    "ek",
+    "ఒకటి",
+    "okati",
+    "ఒక్కటి",
+    "ஒன்று",
+    "ஒண்ணு",
+    "onru",
+  ],
+  ["2", "two", "second", "b", "दो", "do", "రెండు", "rendu", "இரண்டு", "ரெண்டு"],
+  [
+    "3",
+    "three",
+    "third",
+    "c",
+    "तीन",
+    "teen",
+    "మూడు",
+    "moodu",
+    "மூன்று",
+    "moondru",
+  ],
+  [
+    "4",
+    "four",
+    "fourth",
+    "d",
+    "चार",
+    "chaar",
+    "నాలుగు",
+    "nalugu",
+    "நான்கு",
+    "naangu",
+  ],
+  [
+    "5",
+    "five",
+    "fifth",
+    "e",
+    "पांच",
+    "पाँच",
+    "paanch",
+    "ఐదు",
+    "aidu",
+    "ஐந்து",
+    "aindhu",
+  ],
+  ["6", "six", "sixth", "f", "छह", "chhe", "ఆరు", "aaru", "ஆறு"],
+  ["7", "seven", "seventh", "g", "सात", "saat", "ఏడు", "edu", "ஏழு", "ezhu"],
+  [
+    "8",
+    "eight",
+    "eighth",
+    "h",
+    "आठ",
+    "aath",
+    "ఎనిమిది",
+    "enimidi",
+    "எட்டு",
+    "ettu",
+  ],
 ];
 /** Only exact visible labels or curated option aliases can select a choice. */
 export function matchSpokenChoice(text: string, choices: SpokenChoice[]) {
   const value = normalized(text).replace(
-    /^(?:(?:option|number|choice|i choose|i pick|विकल्प|नंबर|ऑप्शन|संख्या|ఆప్షన్|నంబర్|వికల్పం|సంఖ్య)\s+)+/,
+    /^(?:(?:option|number|choice|i choose|i pick|विकल्प|नंबर|ऑप्शन|संख्या|ఆప్షన్|నంబర్|వికల్పం|సంఖ్య|விருப்பம்|எண்|ஆப்ஷன்)\s+)+/,
     "",
   );
   const matches = choices.filter(
@@ -94,6 +152,34 @@ export function matchSpokenChoice(text: string, choices: SpokenChoice[]) {
   return matches.length === 1 ? matches[0] : null;
 }
 const words = {
+  te: {
+    choose: "ఎంపిక సంఖ్య చెప్పండి లేదా ఎంచుకుని లాక్ చేయండి.",
+    answer:
+      "మైక్ నొక్కి మాట్లాడండి, చూసుకుని పంపండి. టైప్ చేయవచ్చు లేదా పాస్ చేయవచ్చు.",
+    secret: "ఈ జవాబు రహస్యంగా ఉంచండి. మిగతావారు మీ వంతు కోసం వేచి ఉండండి.",
+    guess: "ఇప్పుడు {name} జవాబు ఊహించండి.",
+    judge: "{name}, మీకు నచ్చిన జవాబు ఎంచుకోండి.",
+    vote: "ఇప్పుడు {name} అసలు జవాబు ఎంచుకోండి.",
+    traits:
+      "ముందు మీకు, తర్వాత మీ స్నేహితుడికి రేటింగ్ ఇవ్వండి. మధ్యలో సున్నా అంటే రెండూ సమానం. సరిపోయే వైపు కదపండి; ఐదు అత్యధికం. రెండూ సరిపోతే సున్నా ఎంచుకోండి.",
+    wait: "జవాబు లాక్ అయింది. స్నేహితుల కోసం వేచి ఉన్నాం.",
+    option: "ఎంపిక",
+  },
+  ta: {
+    choose:
+      "விருப்ப எண்ணைச் சொல்லுங்கள் அல்லது தேர்ந்தெடுத்து உறுதி செய்யுங்கள்.",
+    answer:
+      "மைக் அழுத்திப் பேசுங்கள், சரிபார்த்து அனுப்புங்கள். தட்டச்சு செய்யலாம் அல்லது தவிர்க்கலாம்.",
+    secret:
+      "இந்தப் பதிலை ரகசியமாக வையுங்கள். மற்றவர்கள் உங்கள் முறைக்காகக் காத்திருங்கள்.",
+    guess: "இப்போது {name} தரும் பதிலை ஊகியுங்கள்.",
+    judge: "{name}, உங்களுக்குப் பிடித்த பதிலைத் தேர்ந்தெடுங்கள்.",
+    vote: "இப்போது {name} கொடுத்த உண்மையான பதிலைத் தேர்ந்தெடுங்கள்.",
+    traits:
+      "முதலில் உங்களையும், பிறகு நண்பரையும் மதிப்பிடுங்கள். நடுவில் பூஜ்ஜியம் என்றால் இரு பக்கமும் சமம். பொருந்தும் பக்கம் நகர்த்துங்கள்; ஐந்து அதிகபட்சம். இரண்டும் பொருந்தினால் பூஜ்ஜியத்தைத் தேர்ந்தெடுங்கள்.",
+    wait: "பதில் உறுதியானது. நண்பர்களுக்காகக் காத்திருக்கிறோம்.",
+    option: "விருப்பம்",
+  },
   en: {
     choose: "Say the option number or tap a choice, then lock it.",
     answer: "Hold to speak, review, then send. You can also type or pass.",
@@ -102,7 +188,7 @@ const words = {
     judge: "{name}, choose your favourite answer.",
     vote: "Now choose {name}'s real answer.",
     traits:
-      "Rate yourself on all three sliders, then rate your friend. Zero is the left label; ten is the right.",
+      "Rate yourself, then your friend. Zero in the centre means balanced. Move toward either label; five is strongest. Choose zero deliberately if both fit.",
     wait: "Your answer is locked. Waiting for your friends.",
     option: "Option",
   },
@@ -114,7 +200,7 @@ const words = {
     judge: "{name}, अपना पसंदीदा जवाब चुनो।",
     vote: "अब {name} का असली जवाब चुनो।",
     traits:
-      "तीनों स्लाइडर पर पहले खुद को, फिर अपने दोस्त को रेट करो। शून्य बायाँ सिरा है, दस दायाँ।",
+      "पहले खुद को, फिर दोस्त को रेट करो। बीच का शून्य संतुलित है। जो तरफ़ सही लगे, उधर बढ़ो; पाँच सबसे ज़्यादा है। दोनों सही लगें तो शून्य चुनो।",
     wait: "जवाब लॉक है। दोस्तों का इंतज़ार है।",
     option: "विकल्प",
   },
@@ -127,7 +213,7 @@ const words = {
     judge: "{name}, apna favourite answer choose karo.",
     vote: "Ab {name} ka real answer choose karo.",
     traits:
-      "Pehle teeno sliders par khud ko, phir friend ko rate karo. Zero left label hai, ten right.",
+      "Pehle khud ko, phir friend ko rate karo. Beech ka zero balanced hai. Jis side fit ho, udhar badho; five sabse strong. Dono fit hain toh zero chuno.",
     wait: "Answer locked. Friends ka wait hai.",
     option: "Option",
   },
@@ -138,6 +224,15 @@ export function questionNarration(view: GameSnapshot): string {
   const p = view.view.phase,
     legacyWords = guideWords(view.setup.hostLanguage);
   const voiceWords = {
+    te: {
+      answer: "జవాబు చెప్పండి లేదా టైప్ చేయండి. పాస్ కూడా చేయవచ్చు.",
+      choose: "ఎంపిక సంఖ్య చెప్పండి లేదా తెరపై ఎంచుకోండి.",
+    },
+    ta: {
+      answer:
+        "பதிலைப் பேசுங்கள் அல்லது தட்டச்சு செய்யுங்கள். தவிர்க்கவும் முடியும்.",
+      choose: "விருப்ப எண்ணைச் சொல்லுங்கள் அல்லது திரையில் தேர்ந்தெடுங்கள்.",
+    },
     en: {
       answer: "Speak your answer or type. You can also pass.",
       choose: "Say an option number or choose on screen.",

@@ -1,5 +1,22 @@
 # Current status
 
+## B079 — Rating tuner and seat alignment, 16 November 2026
+
+Implemented on `v2`: centre-zero analogue ratings, direction-labelled strength, explicit neutral selection, keyboard/tap alternatives and cabin/saddle-specific passenger positioning. Opening traits are still fixed across modes; canonical 0–10 ratings, scoring and protocols are unchanged. See [implementation and verification](../docs/ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079).
+
+43 existing game/scoring/multilingual/PCM checks passed. Backend host/provider checks: 20 passed and the known optional-reply timing assertion failed again at `interactive-host.test.ts:238`. 47 inline Edge checks passed with simulated touch/keyboard; dark/light and vehicle screenshots reviewed. No new test files/folders or paid calls. Final production build, lint and type checks passed; six production-browser smoke checks verified backend health, 2/3/4 passenger counts, the current PWA shell and absence of page exceptions. The local app was restarted at http://localhost:3000. Real phone interaction and live narration acceptance remain pending. No Git push or deployment.
+
+## B078 — Game 1 room setup and languages, 16 November 2026
+
+Implemented on `v2`: saved-profile create/join/invitation return, remote room creation, mode/setting/spice cards, horizontal pace controls, six squad vehicle illustrations, distinct catalog-5 prompts and Telugu/Tamil room content plus Tamil microphone input. Game 1 protocol 7; GC2 protocol 3 and scoring unchanged. Active runs keep serialized content; rematches use the new catalog. See [implementation and verification](../docs/ROOM_SETUP.md).
+
+Verification: 43 existing shared-engine/scoring/multilingual/PCM checks and 21 transactional host/provider checks passed. The previously intermittent optional-reply timing assertion passed this run without an assertion change; historical failures below remain relevant. Inline diagnostics passed 30 catalog combinations, 4,200 factual aliases, 36 rematch/pace checks, 16 spoken-number checks, 126 scoped PostgreSQL checks across 12 fixtures, and 14 local mocked speech configurations. Fifty isolated Edge browser checks passed, including profile refresh/return, invitations, all passenger counts, keyboard/timer behavior, both themes, 320–1280 px layouts, reduced motion and enlarged text. Screenshots were inspected; initial overflow and inherited dock styling were fixed. Final production build, lint/types, generated contracts and six production-browser smoke checks passed; the updated local preview is running on port 3000. No new test files/folders or paid provider calls.
+
+Physical PC/phone matches in both modes, Telugu/Tamil speech quality, native-speaker copy review and live latency/translation acceptance remain pending. No Git push or EC2 deployment. Earlier full-suite fixture failures are not claimed fixed by these scoped checks.
+
+
+**15 November 2026 — B077:** Void reliability, evidence-linked story metadata, response-first comparison, semantic recall and durable provider admission are implemented locally. Existing checks: 43 frontend/game/PCM passed; 20 backend passed and the known optional-reply timing failure remains. Inline diagnostics: 47 mocked PostgreSQL checks, 18 mocked-provider socket checks and 19 simulated-microphone desktop controller checks and 28 production-UI checks passed. Build, types, lint and contract generation passed; a transient browser frame-count assertion is documented. Migrations applied locally. No Git push or EC2 deployment; live-provider and physical-phone verification remain pending. See [delivery evidence](../docs/VOID_RELIABILITY.md).
+
 ## B075 - Submission assets, 10 November 2026
 
 One-page pitch PDF created and visually checked, covering requested Gnani Prisma v3.0 / Timbre v3.0 integrations, current prototype features and future stranger matching. Source and generator are in `docs/submission`; PDF is in `output/pdf`. LinkedIn thumbnail completed at 2048 x 1152 as JPG/PNG in `output/imagegen`, with all four film characters, amber orb, original Expose logo and tagline. Generated through the previously approved OpenAI image API fallback with one targeted three-eye correction; final branding composited and visually reviewed. No new application tests or app speech-provider calls; no upload/publication performed. Existing live-provider and physical-device acceptance limitations remain unchanged.

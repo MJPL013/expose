@@ -1,10 +1,10 @@
 import { z } from "zod";
 import type { AccountIdentity } from "./account";
 
-export const GC2_PROTOCOL = 2;
+export const GC2_PROTOCOL = 3;
 export type VoidIdentity = AccountIdentity & { kind: "google" | "guest" };
 export type VoidIdentityView = {
-  protocol: 2;
+  protocol: 3;
   account: VoidIdentity | null;
   configured: boolean;
   guestAvailable: boolean;
@@ -60,7 +60,7 @@ export const AnalysisSchema = z.object({
   evidence: z.array(EvidenceSchema).max(6),
   refusedTopics: z.array(z.string().max(60)).max(8),
 });
-export const HostSchema = z.object({
+export const HostSchema = z.strictObject({
   text: z.string().min(1).max(450),
   evidenceIds: z.array(z.string()).max(12),
 });
@@ -92,7 +92,7 @@ export type VoidStatus =
   | "complete"
   | "error";
 export type VoidView = {
-  protocol: 2;
+  protocol: 3;
   flowVersion: 1 | 2;
   processing?: "queued" | "running" | "ready" | "failed";
   graphStatus?: "queued" | "running" | "ready" | "failed";
@@ -108,6 +108,8 @@ export type VoidView = {
     audioId?: string;
     audioPending?: boolean;
   };
+  operationId?: string;
+  lastTurn?: { id: string; text: string };
   reflection?: { turnId: string; text: string };
   persona?: Persona;
   feedback?: string;
@@ -121,7 +123,7 @@ export type VoidView = {
 export const VoidMessage = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("claim"),
-    protocol: z.literal(2),
+    protocol: z.literal(3),
     sessionId: z.string().uuid(),
   }),
   z.object({ type: z.literal("heartbeat") }),
@@ -177,7 +179,20 @@ export type VoidServerMessage =
   | { type: "state"; view: VoidView; reason?: "claimed" | "changed" }
   | { type: "capture.accepted"; id: string }
   | { type: "capture.ready"; id: string }
+  | {
+      type: "capture.progress";
+      id: string;
+      stage: "audio-received" | "transcribing" | "accepted" | "replying";
+      text?: string;
+      segmentId?: string;
+    }
   | { type: "capture.cap"; id: string }
-  | { type: "error"; code: string; message: string }
+  | {
+      type: "error";
+      code: string;
+      message: string;
+      operationId?: string;
+      retryAfterSeconds?: number;
+    }
   | { type: "ownership.lost" }
   | { type: "heartbeat" };

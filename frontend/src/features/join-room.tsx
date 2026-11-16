@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePlayerPreferences, useServices } from "../session/provider";
-import { Button, Avatar } from "../ui/primitives";
+import { Button } from "../ui/primitives";
 import { useMatchNavigation } from "./match-navigation";
 import app from "./app.module.css";
 import styles from "./entry.module.css";
+import { ProfileIdentity } from "./room-setup";
+import { hasProfile, setProfileReturn } from "../session/room-entry";
 type Invitation = {
   roomId: string;
   code: string;
@@ -20,7 +22,8 @@ type Invitation = {
 
 export function JoinRoom({ code }: { code: string }) {
   const { onlineSession, chooseSession, sessionMode, audio } = useServices();
-  const { profile } = usePlayerPreferences();
+  const preferences = usePlayerPreferences();
+  const { profile } = preferences;
   const router = useRouter(),
     requestLeave = useMatchNavigation();
   const [room, setRoom] = useState<Invitation | null>(null),
@@ -66,6 +69,10 @@ export function JoinRoom({ code }: { code: string }) {
       active = false;
     };
   }, [code, onlineSession, router, sessionMode, retry]);
+  const editProfile = () => {
+    setProfileReturn(`/join/${code}`);
+    router.push("/profile");
+  };
   const unavailable =
     room &&
     (room.status !== "lobby"
@@ -93,8 +100,11 @@ export function JoinRoom({ code }: { code: string }) {
             className={styles.form}
             onSubmit={(e) => {
               e.preventDefault();
-              const form = new FormData(e.currentTarget),
-                name = String(form.get("name")).trim();
+              if (!hasProfile(preferences)) {
+                editProfile();
+                return;
+              }
+              const name = profile.name.trim();
               requestLeave(() => {
                 void (async () => {
                   setBusy(true);
@@ -125,22 +135,14 @@ export function JoinRoom({ code }: { code: string }) {
             }}
           >
             <fieldset disabled={busy} className={styles.fields}>
-              <Avatar
-                name={profile.name}
-                variant={profile.avatar}
-                color={profile.color}
-              />
-              <label>
-                Your display name
-                <input
-                  name="name"
-                  autoComplete="nickname"
-                  required
-                  maxLength={24}
-                  defaultValue={profile.name === "You" ? "" : profile.name}
-                />
-              </label>
-              <Button type="submit">{busy ? "Joining…" : "Join room"}</Button>
+              <ProfileIdentity profile={profile} onEdit={editProfile} />
+              <Button type="submit">
+                {busy
+                  ? "Joining…"
+                  : hasProfile(preferences)
+                    ? "Join room"
+                    : "Set up profile to join"}
+              </Button>
             </fieldset>
           </form>
         )}

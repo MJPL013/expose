@@ -1,5 +1,22 @@
 # Current implementation and remaining work
 
+## B079 — Rating tuner and seat alignment, 16 November 2026
+
+Implemented on `v2`: centre-zero analogue ratings, direction-labelled strength, explicit neutral selection, keyboard/tap alternatives and cabin/saddle-specific passenger positioning. Opening traits are still fixed across modes; canonical 0–10 ratings, scoring and protocols are unchanged. See [implementation and verification](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079).
+
+43 existing game/scoring/multilingual/PCM checks passed. Backend host/provider checks: 20 passed and the known optional-reply timing assertion failed again at `interactive-host.test.ts:238`. 47 inline Edge checks passed with simulated touch/keyboard; dark/light and vehicle screenshots reviewed. No new test files/folders or paid calls. Final production build, lint and type checks passed; six production-browser smoke checks verified backend health, 2/3/4 passenger counts, the current PWA shell and absence of page exceptions. The local app was restarted at http://localhost:3000. Real phone interaction and live narration acceptance remain pending. No Git push or deployment.
+
+## B078 — Game 1 room setup and languages, 16 November 2026
+
+Implemented on `v2`: saved-profile create/join/invitation return, remote room creation, mode/setting/spice cards, horizontal pace controls, six squad vehicle illustrations, distinct catalog-5 prompts and Telugu/Tamil room content plus Tamil microphone input. Game 1 protocol 7; GC2 protocol 3 and scoring unchanged. Active runs keep serialized content; rematches use the new catalog. See [implementation and verification](ROOM_SETUP.md).
+
+Verification: 43 existing shared-engine/scoring/multilingual/PCM checks and 21 transactional host/provider checks passed. The previously intermittent optional-reply timing assertion passed this run without an assertion change; historical failures below remain relevant. Inline diagnostics passed 30 catalog combinations, 4,200 factual aliases, 36 rematch/pace checks, 16 spoken-number checks, 126 scoped PostgreSQL checks across 12 fixtures, and 14 local mocked speech configurations. Fifty isolated Edge browser checks passed, including profile refresh/return, invitations, all passenger counts, keyboard/timer behavior, both themes, 320–1280 px layouts, reduced motion and enlarged text. Screenshots were inspected; initial overflow and inherited dock styling were fixed. Final production build, lint/types, generated contracts and six production-browser smoke checks passed; the updated local preview is running on port 3000. No new test files/folders or paid provider calls.
+
+Physical PC/phone matches in both modes, Telugu/Tamil speech quality, native-speaker copy review and live latency/translation acceptance remain pending. No Git push or EC2 deployment. Earlier full-suite fixture failures are not claimed fixed by these scoped checks.
+
+
+**15 November 2026 — B077:** The [Void reliability revision](VOID_RELIABILITY.md) is implemented locally. Core/game checks and mocked database/socket/browser diagnostics pass; the existing optional-reply timing failure remains. Updated production deployment, live-provider quality and physical-phone acceptance remain pending.
+
 **10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Native runtime installation and Linux production build passed; HTTPS, private PostgreSQL driver connection, encrypted storage and file permissions were verified. Application remains stopped pending manual .env configuration. Backend typecheck and four forwarded-IP checks passed; existing transactional suite passed 12 of 13 checks, with an optional-reply timing assertion still failing. Follow the [EC2 runbook](AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
 
 ## B073 — EC2 source preparation, 10 November 2026

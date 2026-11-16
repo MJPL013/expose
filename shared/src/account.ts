@@ -10,7 +10,7 @@ export const AccountProfileSchema = z.object({
 });
 export const AccountPreferencesSchema = z.object({
   profile: AccountProfileSchema,
-  speechLanguage: z.enum(["en-IN", "hi-IN", "te-IN"]),
+  speechLanguage: z.enum(["en-IN", "hi-IN", "te-IN", "ta-IN"]),
   hostVoice: z.boolean(),
   voiceMode: z.enum(["handsfree", "hold", "type"]),
   layout: z.enum(["adaptive", "compact"]),

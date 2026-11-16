@@ -1,5 +1,11 @@
 # Expose documentation
 
+**16 November 2026 — B079:** [Centre-zero rating tuner and vehicle alignment](ROOM_SETUP.md#rating-tuner-and-seat-alignment--16-november-2026-b079) revises B078. Opening traits remain shared across modes; visible 5–0–5 ratings retain compatible stored values. Browser checks passed; one previously intermittent backend timing assertion failed again and remains recorded.
+
+**16 November 2026 — B078:** [Game 1 room setup and catalog](ROOM_SETUP.md) documents saved-profile entry, booking-style controls, remote rooms, catalog 5 and Telugu/Tamil. Game 1 is protocol 7; GC2 remains 3. Read its verification boundary before treating language support as live speech acceptance.
+
+**15 November 2026 — B077:** [Void reliability and matching](VOID_RELIABILITY.md) is the current implementation reference: verified microphone/VAD readiness, protocol 3, atomic voice turns, story metadata schema 2, asynchronous semantic recall and durable provider admission. Read its evidence section before treating this as a verified phone fix.
+
 **10 November 2026 — B074 EC2 launch:** user selected t3.small in Mumbai; stack creation succeeded and Session Manager is online. Native runtime installation and Linux production build passed; HTTPS, private PostgreSQL driver connection, encrypted storage and file permissions were verified. Application remains stopped pending manual .env configuration. Backend typecheck and four forwarded-IP checks passed; existing transactional suite passed 12 of 13 checks, with an optional-reply timing assertion still failing. Follow the [EC2 runbook](AWS_DEMO_DEPLOYMENT.md). Live AI/device acceptance remains pending.
 
 **10 November 2026 — B073 deployment source:** the requested `ec2` branch snapshots the current application from `main`. See [EC2 delivery and pending launch work](AWS_DEMO_DEPLOYMENT.md). Publishing source does not deploy the application.

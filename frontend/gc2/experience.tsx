@@ -52,11 +52,13 @@ type Entry = {
   flowVersion?: 1 | 2;
 };
 const labels: Record<Presence, string> = {
+  preparing: "Getting ready",
+  transcribing: "Transcribing",
   idle: "A little space for you",
-  listening: "I'm listening",
-  user: "Your space. Keep going.",
-  thinking: "A moment to think",
-  speaking: "The Void",
+  listening: "Listening",
+  user: "Hearing you",
+  thinking: "Replying",
+  speaking: "AI speaking",
   paused: "Take your time",
   reveal: "A little of you, reflected",
   review: "Room for a little more?",
@@ -268,12 +270,7 @@ export function VoidExperience() {
     document.addEventListener("click", confirmLink, true);
     return () => document.removeEventListener("click", confirmLink, true);
   }, [shouldConfirmExit]);
-  const canAnswer =
-    active &&
-    !processing &&
-    s.connected &&
-    ["ready", "review", "error"].includes(s.view!.status) &&
-    s.presence !== "speaking";
+  const canAnswer = active && !processing && client.canAnswer;
   const reveal = done
     ? s.view?.persona
     : screen === "saved"
@@ -600,6 +597,30 @@ export function VoidExperience() {
                 ? "Some stories don't need a label. Yours are saved here."
                 : s.view?.caption.text}
             </h1>
+            {s.heard && active && (
+              <details className={styles.reflection}>
+                <summary>What I heard</summary>
+                <p>{s.heard}</p>
+              </details>
+            )}
+            {active &&
+              s.mode === "handsfree" &&
+              (s.presence === "preparing" || !!s.error) && (
+                <div className={styles.row}>
+                  <button
+                    className={styles.secondary}
+                    onClick={() => client.setMode("tap")}
+                  >
+                    Tap to speak
+                  </button>
+                  <button
+                    className={styles.secondary}
+                    onClick={() => client.setMode("type")}
+                  >
+                    Type instead
+                  </button>
+                </div>
+              )}
             {s.view?.reflection && !done && (
               <p className={styles.reflection}>
                 <strong>What I understood:</strong> {s.view.reflection.text}
@@ -702,6 +723,14 @@ export function VoidExperience() {
         {visibleError && screen !== "landing" && (
           <p className={styles.error} role="alert">
             {visibleError}
+            {active && s.connected && s.view?.status === "ready" && (
+              <button
+                className={styles.textButton}
+                onClick={() => void client.enable()}
+              >
+                Retry listening
+              </button>
+            )}
             {s.view?.status === "error" && s.connected && (
               <button
                 className={styles.textButton}
@@ -723,7 +752,7 @@ export function VoidExperience() {
               aria-pressed={s.muted}
             >
               {s.muted ? <MicOff size={18} /> : <Mic size={18} />}
-              {s.muted ? "Enable mic" : "Mute"}
+              {s.muted ? "Resume microphone" : "Mute"}
             </button>
           )}
           {s.mode === "tap" && (

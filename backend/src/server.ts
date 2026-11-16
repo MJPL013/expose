@@ -157,6 +157,8 @@ export async function buildServer(
       : validation
         ? "INVALID_REQUEST"
         : "INTERNAL_ERROR";
+    if (known && error.retryAfterSeconds)
+      reply.header("Retry-After", error.retryAfterSeconds);
     reply
       .code(
         known
@@ -174,6 +176,7 @@ export async function buildServer(
               ? "Some request fields are invalid."
               : "The request could not be completed.",
           request_id: req.id,
+          retryAfterSeconds: known ? error.retryAfterSeconds : undefined,
         },
       });
     if (!known && !validation) req.log.error({ err: error }, "Request failed");
@@ -295,7 +298,7 @@ export async function buildServer(
   };
   app.get("/api/v1/health", async () => ({
     status: "ok",
-    protocol_version: 6,
+    protocol_version: 7,
     liveVoice: liveVoice(),
     hostLlmProvider: selectedHostLlm(config).provider,
     hostLlmConfigured: selectedHostLlm(config).configured,
@@ -540,7 +543,7 @@ export async function buildServer(
             const decoded = JSON.parse(raw.toString());
             ensure(
               !("protocol_version" in decoded) ||
-                decoded.protocol_version === 6,
+                decoded.protocol_version === 7,
               "CLIENT_UPDATE_REQUIRED",
               "A new game version is ready. Refresh this page before rejoining.",
               409,
